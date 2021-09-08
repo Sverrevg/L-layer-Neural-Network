@@ -8,6 +8,39 @@ class NeuralNetwork:
         self.bias = np.random.randn()
         self.learning_rate = learning_rate
 
+    def train(self, input_vectors, targets, iterations):
+        cumulative_errors = []
+        for iteration in range(iterations):
+            # Pick a random data instance.
+            random_index = np.random.randint(len(input_vectors))
+
+            input_vector = input_vectors[random_index]
+            target = targets[random_index]
+
+            # Compute the gradients and update the weights.
+            derror_dbias, derror_dweights = self._compute_gradients(
+                input_vector, target
+            )
+
+            self._update_parameters(derror_dbias, derror_dweights)
+
+            # Measure the cumulative error for all the instances.
+            # Check if iteration is multiple of 100.
+            if iteration % 100 == 0:
+                cumulative_error = 0
+                # Loop through all instances to measure the error.
+                for index in range(len(input_vectors)):
+                    data_point = input_vectors[index]
+                    target = targets[index]
+
+                    prediction = self.predict(data_point)
+                    error = np.square(prediction - target)
+
+                    cumulative_error = cumulative_error + error
+                cumulative_errors.append(cumulative_error)
+
+        return cumulative_errors
+
     def _sigmoid(self, x):
         # Function np.exp: Calculate the exponential of all elements in the input array.
         return 1 / (1 + np.exp(-x))
