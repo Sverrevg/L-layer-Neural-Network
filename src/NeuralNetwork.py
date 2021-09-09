@@ -41,8 +41,8 @@ class NeuralNetwork:
 
         return cumulative_errors
 
+    # Function np.exp: Calculate the exponential of all elements in the input array.
     def _sigmoid(self, x):
-        # Function np.exp: Calculate the exponential of all elements in the input array.
         return 1 / (1 + np.exp(-x))
 
     def _sigmoid_deriv(self, x):
@@ -60,14 +60,13 @@ class NeuralNetwork:
         prediction = layer_2
 
         derror_dprediction = 2 * (prediction - target)
-        dprediction_dlayer1 = self._sigmoid(layer_1)
+        dprediction_dlayer1 = self._sigmoid_deriv(layer_1)
         dlayer1_dbias = 1
         dlayer1_dweights = (0 * self.weights) + (1 * input_vector)
 
         derror_dbias = (
                 derror_dprediction * dprediction_dlayer1 * dlayer1_dbias
         )
-
         derror_dweights = (
                 derror_dprediction * dprediction_dlayer1 * dlayer1_dweights
         )
