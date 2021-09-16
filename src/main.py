@@ -1,30 +1,11 @@
-import NeuralNetwork
-import numpy as np
-import matplotlib.pyplot as plt
+from src import neural_network
 
-input_vectors = np.array(
-    [
-        [3, 1.5],
-        [2, 1],
-        [4, 1.5],
-        [3, 4],
-        [3.5, 0.5],
-        [2, 0.5],
-        [5.5, 1],
-        [1, 1],
-    ]
-)
+input_data = [5, 7, 2.3]
+labels = [0, 1, 0]
 
-targets = np.array([0, 1, 0, 1, 0, 1, 1, 0])
+nn = neural_network.NeuralNetwork([1.89, 4.56], [0, 1], 1)
 
-learning_rate = 0.1
-
-neural_network = NeuralNetwork.NeuralNetwork(learning_rate)
-
-training_error = neural_network.train(input_vectors, targets, 10000)
-
-plt.plot(training_error)
-plt.xlabel("Iterations")
-plt.ylabel("Error for all training instances")
-plt.savefig("cumulative_error.png")
-plt.show()
+# Add two hidden layers:
+nn.add_layer(4)
+nn.add_layer(2)
+nn.train()
