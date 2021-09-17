@@ -6,7 +6,7 @@ class Node:
     is_active = True
 
     def __init__(self):
-        self.weight = random.uniform(-1, 1)
+        self.weights = []
         self.bias = random.uniform(-1, 1)
 
     # Calculate output:

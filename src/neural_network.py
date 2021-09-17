@@ -1,4 +1,5 @@
 from components import node
+import numpy as np
 
 
 class NeuralNetwork:
@@ -40,11 +41,24 @@ class NeuralNetwork:
                 #     self.forward_layer(layer, output)
                 i += 1
 
+
     def forward_layer(self, layer, value):
         for node in layer:
             output = node.feedforward(value)
             print(f"Next layer input: {value}, output: {output}")
 
-    def backpropagation(self, y):
-        # Logic here
+    def backpropagation(self, node_output, y, output):
+        # Calculate loss:
+        d_weights2 = np.dot(node_output, (2 * (y - output) * self.sigmoid_derivative(output)))
+        # Application of the chain rule to find derivative of the loss function with respect to weights2 and weights1
+
+        # Update the weights with the derivative (slope) of the loss function
         return 0
+
+    # Function to calculate sigmoid.
+    def sigmoid(self, x):
+        return 1 / (1 + np.exp(-x))
+
+    # Function to calculate the derivative of the sigmoid of x.
+    def sigmoid_derivative(self, x):
+        return self.sigmoid(x) * (1 - self.sigmoid(x))
