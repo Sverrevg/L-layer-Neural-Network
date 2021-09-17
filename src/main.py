@@ -1,11 +1,9 @@
-from src import neural_network
+from network import Network
 
-input_data = [5, 7, 2.3]
-labels = [0, 1, 0]
+inputs = [0.5, 0.6, -2.4, 5.4]
 
-nn = neural_network.NeuralNetwork([1.89, 4.56], [0, 1], 1)
-
-# Add two hidden layers:
-nn.add_layer(4)
+nn = Network(4)
+nn.add_layer(16)
 nn.add_layer(2)
-nn.train()
+
+nn.train(inputs)

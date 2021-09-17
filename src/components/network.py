@@ -1,62 +1,40 @@
-import numpy as np
+from layer import Layer
+from neuron import Neuron
 
 
-class NeuralNetwork:
-    def __init__(self, input_count, x, y, epochs):
-        self.input_count = input_count
-        self.input = x
-        self.y = y
-        self.epochs = epochs
-        self.input_layer = []
-        self.layers = [[]]
-        self.weights1 = np.random.rand(self.input.shape[1], 4)
-        self.weights2 = np.random.rand(4, 1)
-        self.output = np.zeros(y.shape)
+class Network:
+    def __init__(self, input_dim):
+        # Create input layer based on input dimensions:
+        self.input_layer = Layer(input_dim)
+        self.hidden_layers = []
+        # Create output layer, always contains 1 neuron (for binary classification at least).
+        self.output_layer = Neuron()
+        # Set predict mode to true in output layer:
+        self.output_layer.predict = True
 
-    def add_layer(self, node_count):
-        self.layers.append(node_count)
+    # Method to add additional layers to default of input and output layer.
+    def add_layer(self, neuron_count):
+        layer = Layer(neuron_count)
+        self.hidden_layers.append(layer)
 
-    # Perform the next step in the sequence.
-    # This represents one single node with only two layers.
-    def feedforward(self):
-        # Calculate output value for each node in input layer using relu activation:
-        for i in range(self.input_count):
-            self.input_layer.append(self.relu(np.dot(self.input, self.weights1)))
+    # Extremely simple for now, no backpropagation yet:
+    def train(self, x):
+        # Get outputs from input layer based on input data:
+        layer_output = self.calc_layer_ouput(self.input_layer.neurons, x)
+        print(layer_output)
 
-        # Now for the layers:
-        for layer in self.layers:
-            for i in layer:
-                print(i)
+        # Then feed this array to each neuron in next layer:
+        for layer in self.hidden_layers:
+            layer_output = self.calc_layer_ouput(layer.neurons, layer_output)
+            print(layer_output)
 
-        self.output = self.sigmoid(np.dot(self.node, self.weights2))
+        # Finally, calculate final output:
+        prediction = self.output_layer.feedforward(layer_output)
+        print(prediction)
 
-    # Calculate loss and perform backpropagation.
-    def backpropagation(self, node):
-        # Application of the chain rule to find derivative of the loss function with respect to weights2 and weights1
-        d_weights2 = np.dot(node.T, (2 * (self.y - self.output) * self.sigmoid_derivative(self.output)))
-        d_weights1 = np.dot(self.input.T, (np.dot(2 * (self.y - self.output) * self.sigmoid_derivative(self.output),
-                                                  self.weights2.T) * self.sigmoid_derivative(node)))
+    def calc_layer_ouput(self, neurons, x):
+        output = []
+        for neuron in neurons:
+            output.append(neuron.feedforward(x))
 
-        # Update the weights with the derivative (slope) of the loss function
-        self.weights1 += d_weights1
-        self.weights2 += d_weights2
-
-    # Activation function: output input directly if positive, otherwise, output zero.
-    def relu(self, x):
-        if x > 0:
-            return x
-        else:
-            return 0
-
-    # Function to calculate sigmoid.
-    def sigmoid(self, x):
-        return 1 / (1 + np.exp(-x))
-
-    # Function to calculate the derivative of the sigmoid of x.
-    def sigmoid_derivative(self, x):
-        return self.sigmoid(x) * (1 - self.sigmoid(x))
-
-
-nn = NeuralNetwork(8, 12, 12, 12)
-nn.add_layer(32)
-nn.feedforward()
+        return output
