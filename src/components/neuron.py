@@ -1,5 +1,5 @@
 import random
-from value_pair import ValuePair
+from .value_pair import ValuePair
 import numpy as np
 
 

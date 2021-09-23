@@ -1,4 +1,4 @@
-from network import Network
+from components.network import Network
 
 inputs = [0.5, 0.6, -2.4, 5.4]
 
