@@ -6,4 +6,4 @@ nn = Network(4)
 nn.add_layer(16)
 nn.add_layer(2)
 
-nn.train(inputs)
+nn.train(inputs, 10)

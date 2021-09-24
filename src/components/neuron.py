@@ -28,19 +28,7 @@ class Neuron:
             # Calculate weighted input and add to weighted sums:
             weighted_sums += value_pair.get_weight() * value_pair.get_raw_input()
 
-        # If this is a prediction use sigmoid, if this is a layer then use relu:
-        if self.predict:
-            print("Predicting...")
-            return self.sigmoid(weighted_sums)
-        else:
-            return self.relu(weighted_sums) + self.bias
-
-    # Activation function: output input directly if positive, otherwise, output zero.
-    def relu(self, x):
-        if x > 0:
-            return x
-        else:
-            return 0
+        return self.sigmoid(weighted_sums)
 
     # Function to calculate sigmoid.
     def sigmoid(self, x):
