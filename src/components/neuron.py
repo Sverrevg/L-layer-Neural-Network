@@ -5,10 +5,15 @@ import numpy as np
 
 # The neuron takes all inputs, each with their own weights, and calculates the weighted sum.
 # Then, after adding the bias, if the output > t activate output.
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+
 class Neuron:
     def __init__(self):
         self.inputs = []
         self.value_pairs = []
+        self.signal = 0
         # The higher the learning rate, the faster the weights and bias change.
         # Start with higher value and then gradually decrease?
         self.learning_rate = 0.1
@@ -28,17 +33,16 @@ class Neuron:
             # Calculate weighted input and add to weighted sums:
             weighted_sums += value_pair.get_weight() * value_pair.get_raw_input()
 
-        return self.sigmoid(weighted_sums)
+        self.signal = sigmoid(weighted_sums)
+        return self.signal
 
     # Function to calculate sigmoid.
-    def sigmoid(self, x):
-        return 1 / (1 + np.exp(-x))
 
     # For all inputs:
     # weight = weight + (learning_Rate * input * diff)
     # And:
     # bias = bias + (lr * diff)
-    def backpropagation(self, diff):
+    def update_weights(self, diff):
         # Update the weights in each value pair:
         for value_pair in self.value_pairs:
             value_pair.weight += (self.learning_rate * value_pair.get_raw_input * diff)

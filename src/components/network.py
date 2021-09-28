@@ -1,5 +1,30 @@
 from .layer import Layer
 from .neuron import Neuron
+import numpy as np
+
+
+def sigmoid_derivative(x):
+    return x * (1 - x)
+
+
+def calculate_loss(y, output):
+    # Use square function
+    return (y - output) * (y - output)
+
+
+def calc_layer_output(neurons, x):
+    output = []
+    for neuron in neurons:
+        output.append(neuron.feedforward(x))
+
+    return output
+
+
+def backpropagation(neuron, loss):
+    # Application of the chain rule to find derivative of the loss function with respect to weights
+    d_weights = np.dot(neuron.signal, (2 * loss * sigmoid_derivative(loss)))
+
+    neuron.update_weights(d_weights)
 
 
 class Network:
@@ -16,22 +41,27 @@ class Network:
         self.hidden_layers.append(layer)
 
     # Extremely simple for now, no backpropagation yet:
-    def train(self, x, iterations):
+    def train(self, x, y, iterations):
         for i in range(iterations):
             # Get outputs from input layer based on input data:
-            layer_output = self.calc_layer_ouput(self.input_layer.neurons, x)
+            layer_output = calc_layer_output(self.input_layer.neurons, x)
 
             # Then feed this array to each neuron in next layer:
             for layer in self.hidden_layers:
-                layer_output = self.calc_layer_ouput(layer.neurons, layer_output)
+                layer_output = calc_layer_output(layer.neurons, layer_output)
 
-            # Finally, calculate final output:
+            # Calculate final output:
             prediction = self.output_layer.feedforward(layer_output)
             print(prediction)
 
-    def calc_layer_ouput(self, neurons, x):
-        output = []
-        for neuron in neurons:
-            output.append(neuron.feedforward(x))
+            # Then, calculate backpropagation for each layer:
+            # Output layer first, using the prediction made:
+            loss = calculate_loss(y, prediction)
+            backpropagation(self.output_layer, loss)
 
-        return output
+            # Next, hidden layers:
+            for layer in self.hidden_layers:
+                for neuron in layer.neurons:
+
+
+    # Derivative of sigmoid
