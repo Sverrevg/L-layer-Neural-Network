@@ -1,14 +1,15 @@
 import random
-from .value_pair import ValuePair
 import numpy as np
 
+from components.value_pair import ValuePair
 
-# The neuron takes all inputs, each with their own weights, and calculates the weighted sum.
-# Then, after adding the bias, if the output > t activate output.
+
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
 
+# The neuron takes all inputs, each with their own weights, and calculates the weighted sum.
+# Then, after adding the bias, if the output > t activate output.
 class Neuron:
     def __init__(self):
         self.inputs = []
@@ -28,12 +29,12 @@ class Neuron:
     # This method gets all inputs, multiplies those with the assigned weight and then sums the outcomes.
     def feedforward(self, inputs):
         self.set_weights_values(inputs)
-        weighted_sums = 0
+        weighted_sum = 0
         for value_pair in self.value_pairs:
             # Calculate weighted input and add to weighted sums:
-            weighted_sums += value_pair.get_weight() * value_pair.get_raw_input()
+            weighted_sum += value_pair.get_weight() * value_pair.get_raw_input()
 
-        self.signal = sigmoid(weighted_sums)
+        self.signal = sigmoid(weighted_sum + self.bias)
         return self.signal
 
     # Function to calculate sigmoid.

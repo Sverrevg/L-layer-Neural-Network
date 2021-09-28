@@ -1,6 +1,7 @@
-from .layer import Layer
-from .neuron import Neuron
 import numpy as np
+
+from components.layer import Layer
+from components.neuron import Neuron
 
 
 def sigmoid_derivative(x):
@@ -54,14 +55,13 @@ class Network:
             prediction = self.output_layer.feedforward(layer_output)
             print(prediction)
 
-            # Then, calculate backpropagation for each layer:
-            # Output layer first, using the prediction made:
-            loss = calculate_loss(y, prediction)
-            backpropagation(self.output_layer, loss)
-
-            # Next, hidden layers:
-            for layer in self.hidden_layers:
-                for neuron in layer.neurons:
-
+            # # Then, calculate backpropagation for each layer:
+            # # Output layer first, using the prediction made:
+            # loss = calculate_loss(y, prediction)
+            # backpropagation(self.output_layer, loss)
+            #
+            # # Next, hidden layers:
+            # for layer in self.hidden_layers:
+            #     for neuron in layer.neurons:
 
     # Derivative of sigmoid
