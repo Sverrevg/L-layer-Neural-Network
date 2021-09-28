@@ -1,9 +1,10 @@
 import numpy as np
 
-from components.layer import Layer
-from components.neuron import Neuron
+from src.components.layer import Layer
+from src.components.neuron import Neuron
 
 
+# Derivative of sigmoid
 def sigmoid_derivative(x):
     return x * (1 - x)
 
@@ -25,7 +26,8 @@ def backpropagation(neuron, loss):
     # Application of the chain rule to find derivative of the loss function with respect to weights
     d_weights = np.dot(neuron.signal, (2 * loss * sigmoid_derivative(loss)))
 
-    neuron.update_weights(d_weights)
+    neuron.update_weights(round(d_weights, 4))
+    print(d_weights)
 
 
 class Network:
@@ -55,13 +57,12 @@ class Network:
             prediction = self.output_layer.feedforward(layer_output)
             print(prediction)
 
-            # # Then, calculate backpropagation for each layer:
-            # # Output layer first, using the prediction made:
-            # loss = calculate_loss(y, prediction)
-            # backpropagation(self.output_layer, loss)
-            #
-            # # Next, hidden layers:
-            # for layer in self.hidden_layers:
-            #     for neuron in layer.neurons:
+            # Then, calculate backpropagation for each layer:
+            # Output layer first, using the prediction made:
+            loss = calculate_loss(y, prediction)
+            backpropagation(self.output_layer, loss)
 
-    # Derivative of sigmoid
+            # Next, hidden layers:
+            for layer in self.hidden_layers:
+                for neuron in layer.neurons:
+                    backpropagation(neuron.signal, loss)

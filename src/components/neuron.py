@@ -1,7 +1,7 @@
 import random
 import numpy as np
 
-from components.value_pair import ValuePair
+from src.components.value_pair import ValuePair
 
 
 def sigmoid(x):
