@@ -50,5 +50,3 @@ class Neuron:
 
         # Update bias for this neuron:
         self.bias += (self.learning_rate * diff)
-
-    # diff = desired_output - output
