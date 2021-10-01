@@ -7,4 +7,4 @@ nn = Network(4)
 nn.add_layer(16)
 nn.add_layer(2)
 
-nn.train(X, y, 10)
+nn.train(X, y, 100)

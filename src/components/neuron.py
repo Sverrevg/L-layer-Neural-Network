@@ -43,10 +43,10 @@ class Neuron:
     # weight = weight + (learning_Rate * input * diff)
     # And:
     # bias = bias + (lr * diff)
-    def update_weights(self, diff):
+    def update_weights(self, weight):
         # Update the weights in each value pair:
         for value_pair in self.value_pairs:
-            value_pair.weight += (self.learning_rate * value_pair.get_raw_input * diff)
+            value_pair.weight += weight
 
         # Update bias for this neuron:
-        self.bias += (self.learning_rate * diff)
+        self.bias += weight
