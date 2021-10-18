@@ -8,6 +8,13 @@ def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
 
+def relu(x):
+    if x > 0:
+        return x
+    else:
+        return 0
+
+
 # The neuron takes all inputs, each with their own weights, and calculates the weighted sum.
 # Then, after adding the bias, if the output > t activate output.
 class Neuron:
@@ -34,7 +41,7 @@ class Neuron:
             # Calculate weighted input and add to weighted sums:
             weighted_sum += value_pair.get_weight() * value_pair.get_raw_input()
 
-        self.signal = sigmoid(weighted_sum + self.bias)
+        self.signal = relu(weighted_sum + self.bias)
         return self.signal
 
     # Function to calculate sigmoid.
@@ -46,7 +53,7 @@ class Neuron:
     def update_weights(self, weight):
         # Update the weights in each value pair:
         for value_pair in self.value_pairs:
-            value_pair.weight += weight
+            value_pair.weight -= (self.learning_rate * weight)
 
         # Update bias for this neuron:
-        self.bias += weight
+        self.bias -= (self.learning_rate * weight)

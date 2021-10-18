@@ -4,6 +4,25 @@ from src.components.layer import Layer
 from src.components.neuron import Neuron
 
 
+def sigmoid(s):
+    return 1 / (1 + np.exp(-s))
+
+
+def feedforward_layer(w, X, Y, b):
+    m = X.shape[1]
+
+    Z = np.dot(w.T, X) + b
+    A = sigmoid(Z)
+    cost = -(1 / m) * np.sum(Y * np.log(A) + (1 - Y) * np.log(1 - A))
+
+    dw = (1 / m) * np.dot(X, (A - Y).T)
+    db = (1 / m) * np.sum(A - Y)
+
+    cost = np.squeeze(np.array(cost))
+
+    return cost
+
+
 # Derivative of sigmoid
 def sigmoid_derivative(x):
     return x * (1 - x)
