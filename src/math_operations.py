@@ -1,28 +1,43 @@
 import numpy as np
 
-
-def sigmoid(x):
-    return 1 / (1 + np.exp(-x)), x
-
-
-def relu(x):
-    g = np.array(x)
-    g[g < 0] = 0
-
-    return g, x
+"""
+Based on the Neural Networks and Deep Learning courses on Coursera.
+"""
 
 
-def relu_derivative(x):
-    return 1 if x >= 0 else 0
+def sigmoid(Z):
+    A = 1 / (1 + np.exp(-Z))
+    cache = Z
+
+    return A, cache
 
 
-def relu_backward(A, Z):
-    return np.multiply(A, relu_derivative(Z))
+def relu(Z):
+    A = np.maximum(0, Z)
+    assert (A.shape == Z.shape)
+    cache = Z
+
+    return A, cache
 
 
-def sigmoid_derivative(x):
-    return np.multiply(x, (1 - x))
+def relu_backward(dA, cache):
+    Z = cache
+    dZ = np.array(dA, copy=True)  # Just converting dz to a correct object.
+
+    # When z <= 0, you should set dz to 0 as well.
+    dZ[Z <= 0] = 0
+
+    assert (dZ.shape == Z.shape)
+
+    return dZ
 
 
-def sigmoid_backward(A, Z):
-    return np.multiply(A, sigmoid_derivative(Z))
+def sigmoid_backward(dA, cache):
+    Z = cache
+
+    s = 1 / (1 + np.exp(-Z))
+    dZ = dA * s * (1 - s)
+
+    assert (dZ.shape == Z.shape)
+
+    return dZ

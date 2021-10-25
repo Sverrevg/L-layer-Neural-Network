@@ -19,7 +19,7 @@ def initialize_parameters(layer_dims):
     """
     np.random.seed(5)
     parameters = {}
-    L = len(layer_dims)  # number of layers in the network
+    L = len(layer_dims)  # Number of layers in the network.
 
     for l in range(1, L):
         parameters['W' + str(l)] = np.random.randn(layer_dims[l], layer_dims[l - 1]) * 0.01
@@ -68,12 +68,9 @@ def linear_activation_forward(A_prev, W, b, activation):
     if activation == "sigmoid":
         A, activation_cache = math_operations.sigmoid(Z)
 
-        # YOUR CODE ENDS HERE
-
     elif activation == "relu":
         A, activation_cache = math_operations.relu(Z)
 
-        # YOUR CODE ENDS HERE
     cache = (linear_cache, activation_cache)
 
     return A, cache
@@ -188,139 +185,32 @@ def linear_activation_backward(dA, cache, activation):
     return dA_prev, dW, db
 
 
+def update_parameters(params, grads, learning_rate):
+    """
+    Update parameters using gradient descent
+
+    Arguments:
+    params -- python dictionary containing your parameters
+    grads -- python dictionary containing your gradients, output of L_model_backward
+
+    Returns:
+    parameters -- python dictionary containing your updated parameters
+                  parameters["W" + str(l)] = ...
+                  parameters["b" + str(l)] = ...
+    """
+    parameters = params.copy()
+    L = len(parameters) // 2  # Number of layers in the neural network.
+
+    # Update rule for each parameter.
+    for l in range(L):
+        parameters["W" + str(l + 1)] = parameters["W" + str(l + 1)] - learning_rate * grads[f"dW{l + 1}"]
+        parameters["b" + str(l + 1)] = parameters["b" + str(l + 1)] - learning_rate * grads[f"db{l + 1}"]
+
+    return parameters
+
+
 class neural_net:
     def __init__(self, input_dim, layers):
         self.layer_count = len(layers)
         self.W_array = []
         self.b_array = []
-
-    # def forward_propagation(self, X, parameters):
-    #     """
-    #     Argument:
-    #     X -- input data of size (n_x, m)
-    #     parameters -- python dictionary containing your parameters (output of initialization function)
-    #
-    #     Returns:
-    #     S -- The sigmoid output
-    #     cache -- a dictionary containing Z[i] and A[i]
-    #
-    #     """
-    #
-    #     # Retrieve all parameters and store in array. Each index represents one layer:
-    #     W_array = []
-    #     b_array = []
-    #
-    #     for i in range(self.layer_count):
-    #         W_array.append(parameters[f"W{i}"])
-    #         b_array.append(parameters[f"b{i}"])
-    #
-    #     # Store all Z and A values:
-    #     Z_array = []
-    #     cache_array = []
-    #
-    #     # Calculate A for each layer:
-    #     for i in range(self.layer_count):
-    #         Z = np.dot(W_array[i], X) + b_array[i]
-    #         A = np.tanh(Z)  # tanh activation function
-    #         Z_array.append(Z)
-    #         cache = {f"Z{i}": Z,
-    #                  f"A{i}": A}
-    #         cache_array.append(cache)
-    #
-    #     # Calculate S using last Z element:
-    #     S = math_operations.sigmoid(Z_array[-1])
-    #
-    #     return S, cache_array
-    #
-    # def compute_cost(self, S, Y):
-    #     """
-    #     Computes the cross-entropy cost
-    #
-    #     Arguments:
-    #     S -- The sigmoid output of the second activation, of shape (1, number of examples)
-    #     Y -- "true" labels vector of shape (1, number of examples)
-    #
-    #     Returns:
-    #     cost -- cross-entropy cost given equation (13)
-    #
-    #     """
-    #     m = Y.shape[1]  # number of examples
-    #
-    #     # Compute the cross-entropy cost
-    #     logprobs = np.multiply(np.log(S), Y) + np.multiply((1 - Y), np.log(1 - S))
-    #     cost = -(1 / m) * np.sum(logprobs)
-    #
-    #     cost = float(np.squeeze(cost))  # makes sure cost is the dimension we expect. E.g., turns [[17]] into 17
-    #
-    #     return cost
-    #
-    # def backward_propagation(self, parameters, cache, X, Y):
-    #     """
-    #     Implement the backward propagation using the instructions above.
-    #
-    #     Arguments:
-    #     parameters -- python dictionary containing our parameters
-    #     cache -- a dictionary containing "Z1", "A1", "Z2" and "A2".
-    #     X -- input data of shape (2, number of examples)
-    #     Y -- "true" labels vector of shape (1, number of examples)
-    #
-    #     Returns:
-    #     grads -- python dictionary containing your gradients with respect to different parameters
-    #     """
-    #     m = X.shape[1]
-    #
-    #     # Retrieve all parameters and store in array. Each index represents one layer:
-    #     W_array = []
-    #
-    #     for i in range(self.layer_count):
-    #         W_array.append(parameters[f"W{i}"])
-    #
-    #     # Store all Z and A values:
-    #     A_array = []
-    #
-    #     # Calculate A for each layer:
-    #     for i in range(self.layer_count):
-    #         A_array.append(cache[f"A{i}"])
-    #
-    #     # Store dZ, dW and dB values:
-    #     dZ_array = []
-    #     dW_array = []
-    #     dB_array = []
-    #
-    #     # Calculate dZN first. This is from the output layer:
-    #     dZ = A_array[-1] - Y
-    #     size = len(self.layer_count)
-    #
-    #     for i in range(self.layer_count):
-    #         dW = (1 / m) * np.dot(dZ, A_array[i].T)
-    #         dB = (1 / m) * np.sum(dZ, axis=1, keepdims=True)
-    #         dZ = np.dot(W_array[size - i])
-    #
-    # def update_parameters(parameters, grads, learning_rate=1.2):
-    #     """
-    #     Updates parameters using the gradient descent update rule given above
-    #
-    #     Arguments:
-    #     parameters -- python dictionary containing your parameters
-    #     grads -- python dictionary containing your gradients
-    #
-    #     Returns:
-    #     parameters -- python dictionary containing your updated parameters
-    #
-    #     """
-    #     return 0
-    #
-    # def nn_model(X, Y, n_h, num_iterations=10000, print_cost=False):
-    #     """
-    #     Arguments:
-    #     X -- dataset of shape (2, number of examples)
-    #     Y -- labels of shape (1, number of examples)
-    #     n_h -- size of the hidden layer
-    #     num_iterations -- Number of iterations in gradient descent loop
-    #     print_cost -- if True, print the cost every 1000 iterations
-    #
-    #     Returns:
-    #     parameters -- parameters learnt by the model. They can then be used to predict.
-    #
-    #     """
-    #     return 0

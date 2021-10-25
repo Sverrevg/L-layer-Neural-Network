@@ -22,20 +22,6 @@ class TestMethods(unittest.TestCase):
         np.testing.assert_allclose(output, expected)
         np.testing.assert_allclose(data, cache)
 
-    def test_sigmoid_derivative(self):
-        data = np.array([0.57, 0.88])
-        output = np.array([math_operations.sigmoid_derivative(data[0]), math_operations.sigmoid_derivative(data[1])])
-        expected = np.array([0.2451, 0.1056])
-
-        np.testing.assert_allclose(output, expected)
-
-    def test_relu_derivative(self):
-        data = np.array([-0.57, 0.88])
-        output = np.array([math_operations.relu_derivative(data[0]), math_operations.relu_derivative(data[1])])
-        expected = np.array([0, 1])
-
-        np.testing.assert_allclose(output, expected)
-
     def test_initialize_parameters(self):
         # Each number represents the number of nodes in one layer.
         layer_dims = [5, 4, 3]
@@ -109,4 +95,3 @@ class TestMethods(unittest.TestCase):
         t_dA_prev, t_dW, t_db = neural_net.linear_backward(t_dZ, [array_1, array_2, array_3])
 
         np.testing.assert_allclose(t_dA_prev, expected)
-
