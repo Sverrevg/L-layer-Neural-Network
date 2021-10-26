@@ -1,8 +1,7 @@
 import numpy as np
 import unittest
 
-import math_operations
-import neural_net
+from old import neural_net, math_operations
 
 
 class TestMethods(unittest.TestCase):
