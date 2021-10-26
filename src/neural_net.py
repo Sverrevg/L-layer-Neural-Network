@@ -260,46 +260,53 @@ def update_parameters(parameters, grads, learning_rate):
     return parameters
 
 
-def L_layer_model(X, Y, layers_dims, learning_rate=0.0075, num_iterations=3000, print_cost=False):
-    """
-    Implements a L-layer neural network: [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID.
+class NeuralNetwork:
+    def __init__(self, layers_dims, learning_rate=0.0075, num_iterations=3000, print_cost=False):
+        self.layers_dims = layers_dims
+        self.learning_rate = learning_rate
+        self.num_iterations = num_iterations
+        self.print_cost = print_cost
 
-    Arguments:
-    X -- data, numpy array of shape (num_px * num_px * 3, number of examples)
-    Y -- true "label" vector (containing 0 if cat, 1 if non-cat), of shape (1, number of examples)
-    layers_dims -- list containing the input size and each layer size, of length (number of layers + 1).
-    learning_rate -- learning rate of the gradient descent update rule
-    num_iterations -- number of iterations of the optimization loop
-    print_cost -- if True, it prints the cost every 100 steps
+    def train_model(self, X, Y):
+        """
+        Implements a L-layer neural network: [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID.
 
-    Returns:
-    parameters -- parameters learnt by the model. They can then be used to predict.
-    """
-    np.random.seed(1)
-    costs = []  # keep track of cost
+        Arguments:
+        X -- data, numpy array of shape (num_px * num_px * 3, number of examples)
+        Y -- true "label" vector (containing 0 if cat, 1 if non-cat), of shape (1, number of examples)
+        layers_dims -- list containing the input size and each layer size, of length (number of layers + 1).
+        learning_rate -- learning rate of the gradient descent update rule
+        num_iterations -- number of iterations of the optimization loop
+        print_cost -- if True, it prints the cost every 100 steps
 
-    # Parameters initialization.
-    parameters = initialize_parameters_deep(layers_dims)
+        Returns:
+        parameters -- parameters learnt by the model. They can then be used to predict.
+        """
+        np.random.seed(1)
+        costs = []  # keep track of cost
 
-    # Loop (gradient descent)
-    for i in range(0, num_iterations):
+        # Parameters initialization.
+        parameters = initialize_parameters_deep(self.layers_dims)
 
-        # Forward propagation: [LINEAR -> RELU]*(L-1) -> LINEAR -> SIGMOID.
-        AL, caches = L_model_forward(X, parameters)
+        # Loop (gradient descent)
+        for i in range(0, self.num_iterations):
 
-        # Compute cost.
-        cost = compute_cost(AL, Y)
+            # Forward propagation: [LINEAR -> RELU]*(L-1) -> LINEAR -> SIGMOID.
+            AL, caches = L_model_forward(X, parameters)
 
-        # Backward propagation.
-        grads = L_model_backward(AL, Y, caches)
+            # Compute cost.
+            cost = compute_cost(AL, Y)
 
-        # Update parameters.
-        parameters = update_parameters(parameters, grads, learning_rate)
+            # Backward propagation.
+            grads = L_model_backward(AL, Y, caches)
 
-        # Print the cost every 100 iterations
-        if print_cost and i % 100 == 0 or i == num_iterations - 1:
-            print("Cost after iteration {}: {}".format(i, np.squeeze(cost)))
-        if i % 100 == 0 or i == num_iterations:
-            costs.append(cost)
+            # Update parameters.
+            parameters = update_parameters(parameters, grads, self.learning_rate)
 
-    return parameters, costs
+            # Print the cost every 100 iterations
+            if self.print_cost and i % 100 == 0 or i == self.num_iterations - 1:
+                print("Cost after iteration {}: {}".format(i, np.squeeze(cost)))
+            if i % 100 == 0 or i == self.num_iterations:
+                costs.append(cost)
+
+        return parameters, costs

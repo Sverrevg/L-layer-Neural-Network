@@ -1,4 +1,4 @@
-from neural_net import L_layer_model
+from neural_net import NeuralNetwork
 import numpy as np
 import h5py
 import matplotlib.pyplot as plt
@@ -42,8 +42,8 @@ print("test_x_orig shape: " + str(test_x_orig.shape))
 print("test_y shape: " + str(test_y.shape) + "\n")
 
 # Reshape the training and test examples
-train_x_flatten = train_x_orig.reshape(train_x_orig.shape[0],
-                                       -1).T  # The "-1" makes reshape flatten the remaining dimensions
+train_x_flatten = train_x_orig.reshape(
+    train_x_orig.shape[0], -1).T  # The "-1" makes reshape flatten the remaining dimensions
 test_x_flatten = test_x_orig.reshape(test_x_orig.shape[0], -1).T
 
 # Standardize data to have feature values between 0 and 1.
@@ -53,7 +53,9 @@ test_x = test_x_flatten / 255.
 print("train_x's shape: " + str(train_x.shape))
 print("test_x's shape: " + str(test_x.shape) + "\n")
 
-### CONSTANTS ###
-layers_dims = [12288, 20, 7, 5, 1]  # 4-layer model
+# Constants
+layers_dims = [12288, 20, 10, 7, 5, 1]  # 5-layer model
 
-parameters, costs = L_layer_model(train_x, train_y, layers_dims, num_iterations=2500, print_cost=True)
+nn = NeuralNetwork(layers_dims, learning_rate=0.01, num_iterations=2000, print_cost=True)
+
+parameters, costs = nn.train_model(train_x, train_y)
