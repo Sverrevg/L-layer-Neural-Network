@@ -57,16 +57,16 @@ print("train_x's shape: " + str(train_x.shape))
 print("test_x's shape: " + str(test_x.shape) + "\n")
 
 # Constants
-layers_dims = [12288, 11, 9, 5, 1]  # 4-layer model
+layers_dims = [12288, 15, 9, 5, 1]  # 4-layer model
 
-nn = NeuralNetwork(layers_dims, learning_rate=0.01, num_iterations=1500, print_cost=True)
+nn = NeuralNetwork(layers_dims, learning_rate=0.005, num_iterations=2500, print_cost=True)
 
 costs = nn.train_model(train_x, train_y)
-print(costs)
+
 # Plot cost over time:
 fig, ax = plt.subplots()
 ax.plot(costs)
-ax.set(xlabel='Iterations', ylabel='Cost', title='Cost over iterations (hundreds)')
+ax.set(xlabel='Iterations (x10)', ylabel='Cost', title='Cost over iterations')
 plt.show()
 
 # Test model:
