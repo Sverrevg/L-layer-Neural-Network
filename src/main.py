@@ -1,7 +1,9 @@
-from neural_net import NeuralNetwork
+from PIL import Image
 import numpy as np
 import h5py
 import matplotlib.pyplot as plt
+
+from neural_net import NeuralNetwork
 
 
 def load_data():
@@ -26,6 +28,7 @@ train_x_orig, train_y, test_x_orig, test_y, classes = load_data()
 # Example of a picture
 index = 88
 plt.imshow(train_x_orig[index])
+plt.show()
 print("y = " + str(train_y[0, index]) + ". It's a " + classes[train_y[0, index]].decode("utf-8") + " picture.\n")
 
 # Explore your dataset
@@ -54,8 +57,30 @@ print("train_x's shape: " + str(train_x.shape))
 print("test_x's shape: " + str(test_x.shape) + "\n")
 
 # Constants
-layers_dims = [12288, 20, 10, 7, 5, 1]  # 5-layer model
+layers_dims = [12288, 11, 9, 5, 1]  # 4-layer model
 
-nn = NeuralNetwork(layers_dims, learning_rate=0.01, num_iterations=2000, print_cost=True)
+nn = NeuralNetwork(layers_dims, learning_rate=0.01, num_iterations=1500, print_cost=True)
 
-parameters, costs = nn.train_model(train_x, train_y)
+costs = nn.train_model(train_x, train_y)
+print(costs)
+# Plot cost over time:
+fig, ax = plt.subplots()
+ax.plot(costs)
+ax.set(xlabel='Iterations', ylabel='Cost', title='Cost over iterations (hundreds)')
+plt.show()
+
+# Test model:
+pred_test = nn.test(test_x, test_y)
+
+# Prepare image for prediction:
+path = 'sample_data/cat.jpg'
+
+image = np.array(Image.open(path).resize((num_px, num_px)))
+plt.imshow(image)
+image = image / 255.
+image = image.reshape((1, num_px * num_px * 3)).T
+plt.show()
+
+prediction = nn.predict(image)
+print(f'Output: {prediction}')
+print('Prediction: ' + 'cat' if prediction >= 0.5 else 'non-cat')

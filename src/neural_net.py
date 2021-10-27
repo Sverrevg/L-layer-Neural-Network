@@ -1,5 +1,6 @@
 import numpy as np
 import math_operations
+import matplotlib.pyplot as plt
 
 
 def initialize_parameters_deep(layer_dims):
@@ -18,11 +19,11 @@ def initialize_parameters_deep(layer_dims):
     L = len(layer_dims)  # number of layers in the network
 
     for l in range(1, L):
-        parameters['W' + str(l)] = np.random.randn(layer_dims[l], layer_dims[l - 1]) / np.sqrt(layer_dims[l - 1])
-        parameters['b' + str(l)] = np.zeros((layer_dims[l], 1))
+        parameters[f'W{l}'] = np.random.randn(layer_dims[l], layer_dims[l - 1]) / np.sqrt(layer_dims[l - 1])
+        parameters[f'b{l}'] = np.zeros((layer_dims[l], 1))
 
-        assert (parameters['W' + str(l)].shape == (layer_dims[l], layer_dims[l - 1]))
-        assert (parameters['b' + str(l)].shape == (layer_dims[l], 1))
+        assert (parameters[f'W{l}'].shape == (layer_dims[l], layer_dims[l - 1]))
+        assert (parameters[f'b{l}'].shape == (layer_dims[l], 1))
 
     return parameters
 
@@ -103,12 +104,12 @@ def L_model_forward(X, parameters):
     # Implement [LINEAR -> RELU]*(L-1). Add "cache" to the "caches" list.
     for l in range(1, L):
         A_prev = A
-        A, cache = linear_activation_forward(A_prev, parameters['W' + str(l)], parameters['b' + str(l)],
+        A, cache = linear_activation_forward(A_prev, parameters[f'W{l}'], parameters[f'b{l}'],
                                              activation="relu")
         caches.append(cache)
 
     # Implement LINEAR -> SIGMOID. Add "cache" to the "caches" list.
-    AL, cache = linear_activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], activation="sigmoid")
+    AL, cache = linear_activation_forward(A, parameters[f'W{L}'], parameters[f'b{L}'], activation="sigmoid")
     caches.append(cache)
 
     assert (AL.shape == (1, X.shape[1]))
@@ -218,20 +219,19 @@ def L_model_backward(AL, Y, caches):
     # Initializing the backpropagation
     dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
 
-    # Lth layer (SIGMOID -> LINEAR) gradients. Inputs: "AL, Y, caches". Outputs: "grads["dAL"], grads["dWL"], grads["dbL"]
+    # Lth layer (SIGMOID -> LINEAR) gradients.
     current_cache = caches[L - 1]
-    grads["dA" + str(L - 1)], grads["dW" + str(L)], grads["db" + str(L)] = linear_activation_backward(dAL,
-                                                                                                      current_cache,
-                                                                                                      activation="sigmoid")
+    grads[f'dA{L - 1}'], grads[f'dW{L}'], grads[f'db{L}'] = linear_activation_backward(dAL, current_cache,
+                                                                                       activation="sigmoid")
 
     for l in reversed(range(L - 1)):
         # lth layer: (RELU -> LINEAR) gradients.
         current_cache = caches[l]
-        dA_prev_temp, dW_temp, db_temp = linear_activation_backward(grads["dA" + str(l + 1)], current_cache,
+        dA_prev_temp, dW_temp, db_temp = linear_activation_backward(grads[f'dA{l + 1}'], current_cache,
                                                                     activation="relu")
-        grads["dA" + str(l)] = dA_prev_temp
-        grads["dW" + str(l + 1)] = dW_temp
-        grads["db" + str(l + 1)] = db_temp
+        grads[f'dA{l}'] = dA_prev_temp
+        grads[f'dW{l + 1}'] = dW_temp
+        grads[f'db{l + 1}'] = db_temp
 
     return grads
 
@@ -254,8 +254,8 @@ def update_parameters(parameters, grads, learning_rate):
 
     # Update rule for each parameter. Use a for loop.
     for l in range(L):
-        parameters["W" + str(l + 1)] = parameters["W" + str(l + 1)] - learning_rate * grads["dW" + str(l + 1)]
-        parameters["b" + str(l + 1)] = parameters["b" + str(l + 1)] - learning_rate * grads["db" + str(l + 1)]
+        parameters[f'W{l + 1}'] = parameters[f'W{l + 1}'] - learning_rate * grads[f'dW{l + 1}']
+        parameters[f'b{l + 1}'] = parameters[f'b{l + 1}'] - learning_rate * grads[f'db{l + 1}']
 
     return parameters
 
@@ -266,6 +266,7 @@ class NeuralNetwork:
         self.learning_rate = learning_rate
         self.num_iterations = num_iterations
         self.print_cost = print_cost
+        self.parameters = []  # Saves trained parameters within the model.
 
     def train_model(self, X, Y):
         """
@@ -301,12 +302,30 @@ class NeuralNetwork:
             grads = L_model_backward(AL, Y, caches)
 
             # Update parameters.
-            parameters = update_parameters(parameters, grads, self.learning_rate)
+            self.parameters = update_parameters(parameters, grads, self.learning_rate)
 
             # Print the cost every 100 iterations
             if self.print_cost and i % 100 == 0 or i == self.num_iterations - 1:
-                print("Cost after iteration {}: {}".format(i, np.squeeze(cost)))
+                print("Cost after iteration {}: {}".format(i, np.squeeze(np.round(cost, 3))))
             if i % 100 == 0 or i == self.num_iterations:
-                costs.append(cost)
+                costs.append(np.max(cost))
 
-        return parameters, costs
+        return costs
+
+    def test(self, X, y):
+        m = X.shape[1]
+        p = np.zeros((1, m))
+
+        predictions, caches = L_model_forward(X, self.parameters)
+
+        for i in range(0, predictions.shape[1]):
+            if predictions[0, i] > 0.5:
+                p[0, i] = 1
+            else:
+                p[0, i] = 0
+
+        print("Test accuracy: " + str(np.round(np.sum((p == y) / m))))
+
+    def predict(self, x):
+        AL, caches = L_model_forward(x, self.parameters)
+        return AL
