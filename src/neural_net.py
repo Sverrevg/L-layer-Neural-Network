@@ -1,6 +1,7 @@
 import numpy as np
 import math_operations
 import time
+from numba import njit
 
 
 def initialize_parameters_deep(layer_dims):
@@ -283,7 +284,7 @@ class NeuralNetwork:
         Y -- true "label" vector (containing 0 if cat, 1 if non-cat), of shape (1, number of examples)
 
         Returns:
-        parameters -- parameters learnt by the model. They can then be used to predict.
+        Costs - used to plot costs over time for model insight.
         """
         startTime = time.time()
         np.random.seed(1)
