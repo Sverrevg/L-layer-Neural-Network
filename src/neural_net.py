@@ -1,6 +1,6 @@
 import numpy as np
 import math_operations
-import matplotlib.pyplot as plt
+import time
 
 
 def initialize_parameters_deep(layer_dims):
@@ -262,6 +262,12 @@ def update_parameters(parameters, grads, learning_rate):
 
 class NeuralNetwork:
     def __init__(self, layers_dims, learning_rate=0.0075, num_iterations=3000, print_cost=False):
+        """
+        layers_dims -- list containing the input size and each layer size, of length (number of layers + 1).
+        learning_rate -- learning rate of the gradient descent update rule
+        num_iterations -- number of iterations of the optimization loop
+        print_cost -- if True, it prints the cost every 100 steps
+        """
         self.layers_dims = layers_dims
         self.learning_rate = learning_rate
         self.num_iterations = num_iterations
@@ -275,14 +281,11 @@ class NeuralNetwork:
         Arguments:
         X -- data, numpy array of shape (num_px * num_px * 3, number of examples)
         Y -- true "label" vector (containing 0 if cat, 1 if non-cat), of shape (1, number of examples)
-        layers_dims -- list containing the input size and each layer size, of length (number of layers + 1).
-        learning_rate -- learning rate of the gradient descent update rule
-        num_iterations -- number of iterations of the optimization loop
-        print_cost -- if True, it prints the cost every 100 steps
 
         Returns:
         parameters -- parameters learnt by the model. They can then be used to predict.
         """
+        startTime = time.time()
         np.random.seed(1)
         costs = []  # keep track of cost
 
@@ -310,6 +313,8 @@ class NeuralNetwork:
             if i % 100 == 0 or i == self.num_iterations:
                 costs.append(np.max(cost))
 
+        execution_time = (time.time() - startTime)
+        print('Execution time in seconds: ' + str(round(execution_time, 2)))
         return costs
 
     def test(self, X, y):

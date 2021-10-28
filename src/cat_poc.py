@@ -59,7 +59,7 @@ print("test_x's shape: " + str(test_x.shape) + "\n")
 # Constants
 layers_dims = [12288, 15, 9, 5, 1]  # 4-layer model
 
-nn = NeuralNetwork(layers_dims, learning_rate=0.005, num_iterations=2500, print_cost=True)
+nn = NeuralNetwork(layers_dims, learning_rate=0.005, num_iterations=1800, print_cost=True)
 
 costs = nn.train_model(train_x, train_y)
 
