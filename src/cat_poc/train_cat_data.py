@@ -7,11 +7,11 @@ from neural_net import NeuralNetwork
 
 
 def load_data():
-    train_dataset = h5py.File('data/cats/train_catvnoncat.h5', "r")
+    train_dataset = h5py.File('./../data/cats/train_catvnoncat.h5', "r")
     train_set_x_orig = np.array(train_dataset["train_set_x"][:])  # your train set features
     train_set_y_orig = np.array(train_dataset["train_set_y"][:])  # your train set labels
 
-    test_dataset = h5py.File('data/cats/test_catvnoncat.h5', "r")
+    test_dataset = h5py.File('./../data/cats/test_catvnoncat.h5', "r")
     test_set_x_orig = np.array(test_dataset["test_set_x"][:])  # your test set features
     test_set_y_orig = np.array(test_dataset["test_set_y"][:])  # your test set labels
 
@@ -74,16 +74,3 @@ plt.show()
 
 # Test model:
 pred_test = nn.test(test_x, test_y)
-
-# Prepare image for prediction:
-path = 'data/cats/cat.jpg'
-
-image = np.array(Image.open(path).resize((num_px, num_px)))
-plt.imshow(image)
-image = image / 255.
-image = image.reshape((1, num_px * num_px * 3)).T
-plt.show()
-
-prediction = nn.predict(image)
-print(f'Output: {prediction}')
-print('Prediction: ' + 'cat' if prediction >= 0.5 else 'non-cat')

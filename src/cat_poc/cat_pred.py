@@ -12,7 +12,7 @@ nn = NeuralNetwork(layers_dims, learning_rate=0.005, num_iterations=1800, print_
 nn.load_parameters()
 
 # Prepare image for prediction:
-path = 'data/cats/cat.jpg'
+path = '../data/cats/cat.JPG'
 num_px = 64
 
 image = np.array(Image.open(path).resize((num_px, num_px)))

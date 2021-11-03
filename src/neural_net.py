@@ -264,7 +264,7 @@ def update_parameters(parameters, grads, learning_rate):
 
 class NeuralNetwork:
     def __init__(self, layers_dims, learning_rate=0.0075, num_iterations=3000, print_cost=False,
-                 save_dir='/save_files/', filename='parameters.npy'):
+                 save_dir='./../save_files/', filename='parameters.npy'):
         """
         layers_dims -- list containing the input size and each layer size, of length (number of layers + 1).
         learning_rate -- learning rate of the gradient descent update rule
@@ -279,7 +279,7 @@ class NeuralNetwork:
         self.print_cost = print_cost
         self.parameters = []  # Saves trained parameters within the model.
         self.costs = []  # Saves cost within the model after training.
-        self.save_dir = os.getcwd() + save_dir  # Used to load and save the model parameters.
+        self.save_dir = save_dir  # Used to load and save the model parameters.
         self.filename = filename
 
     def fit(self, X, Y):
@@ -346,7 +346,7 @@ class NeuralNetwork:
         return AL
 
     def save_parameters(self):
-        print("Saving to", self.save_dir + self.filename)
+        print("Saving parameters to", "'" + self.save_dir + self.filename + "'...")
 
         # Check if save_dir exists, if not, make it:
         Path(self.save_dir).mkdir(exist_ok=True)
@@ -355,5 +355,8 @@ class NeuralNetwork:
         np.save(self.save_dir + self.filename, self.parameters)
 
     def load_parameters(self):
-        # Load saved file into parameters array:
-        self.parameters = np.load(self.save_dir + self.filename, allow_pickle=True)
+        try:
+            # Load saved file into parameters array. Use .item() to retrieve all dictionaries:
+            self.parameters = np.load(self.save_dir + self.filename, allow_pickle=True).item()
+        except ValueError:
+            raise Exception("Parameters cannot be empty.")
