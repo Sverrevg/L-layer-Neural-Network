@@ -7,11 +7,11 @@ from neural_net import NeuralNetwork
 
 
 def load_data():
-    train_dataset = h5py.File('sample_data/train_catvnoncat.h5', "r")
+    train_dataset = h5py.File('data/cats/train_catvnoncat.h5', "r")
     train_set_x_orig = np.array(train_dataset["train_set_x"][:])  # your train set features
     train_set_y_orig = np.array(train_dataset["train_set_y"][:])  # your train set labels
 
-    test_dataset = h5py.File('sample_data/test_catvnoncat.h5', "r")
+    test_dataset = h5py.File('data/cats/test_catvnoncat.h5', "r")
     test_set_x_orig = np.array(test_dataset["test_set_x"][:])  # your test set features
     test_set_y_orig = np.array(test_dataset["test_set_y"][:])  # your test set labels
 
@@ -61,11 +61,11 @@ layers_dims = [12288, 15, 9, 5, 1]  # 4-layer model
 
 nn = NeuralNetwork(layers_dims, learning_rate=0.005, num_iterations=1800, print_cost=True)
 
-costs = nn.train_model(train_x, train_y)
+nn.fit(train_x, train_y)
 
 # Plot cost over time:
 fig, ax = plt.subplots()
-ax.plot(costs)
+ax.plot(nn.costs)
 ax.set(xlabel='Iterations (x10)', ylabel='Cost', title='Cost over iterations')
 plt.show()
 
@@ -73,7 +73,7 @@ plt.show()
 pred_test = nn.test(test_x, test_y)
 
 # Prepare image for prediction:
-path = 'sample_data/cat.jpg'
+path = 'data/cats/cat.jpg'
 
 image = np.array(Image.open(path).resize((num_px, num_px)))
 plt.imshow(image)

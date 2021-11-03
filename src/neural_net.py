@@ -1,7 +1,6 @@
 import numpy as np
 import math_operations
 import time
-from numba import njit
 
 
 def initialize_parameters_deep(layer_dims):
@@ -274,8 +273,9 @@ class NeuralNetwork:
         self.num_iterations = num_iterations
         self.print_cost = print_cost
         self.parameters = []  # Saves trained parameters within the model.
+        self.costs = []  # Saves cost within the model after training.
 
-    def train_model(self, X, Y):
+    def fit(self, X, Y):
         """
         Implements a L-layer neural network: [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID.
 
@@ -316,7 +316,9 @@ class NeuralNetwork:
 
         execution_time = (time.time() - startTime)
         print('Execution time in seconds: ' + str(round(execution_time, 2)))
-        return costs
+
+        # Save costs to model:
+        self.costs = costs
 
     def test(self, X, y):
         m = X.shape[1]
