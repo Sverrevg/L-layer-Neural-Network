@@ -63,6 +63,9 @@ nn = NeuralNetwork(layers_dims, learning_rate=0.005, num_iterations=1800, print_
 
 nn.fit(train_x, train_y)
 
+# Save parameters for later use:
+nn.save_parameters()
+
 # Plot cost over time:
 fig, ax = plt.subplots()
 ax.plot(nn.costs)

@@ -1,6 +1,8 @@
 import numpy as np
 import math_operations
 import time
+import os
+from pathlib import Path
 
 
 def initialize_parameters_deep(layer_dims):
@@ -261,12 +263,15 @@ def update_parameters(parameters, grads, learning_rate):
 
 
 class NeuralNetwork:
-    def __init__(self, layers_dims, learning_rate=0.0075, num_iterations=3000, print_cost=False):
+    def __init__(self, layers_dims, learning_rate=0.0075, num_iterations=3000, print_cost=False,
+                 save_dir='/save_files/', filename='parameters.npy'):
         """
         layers_dims -- list containing the input size and each layer size, of length (number of layers + 1).
         learning_rate -- learning rate of the gradient descent update rule
         num_iterations -- number of iterations of the optimization loop
         print_cost -- if True, it prints the cost every 100 steps
+        save_dir -- default save location. Can be overridden.
+        filename -- default file name. Can be overridden.
         """
         self.layers_dims = layers_dims
         self.learning_rate = learning_rate
@@ -274,6 +279,8 @@ class NeuralNetwork:
         self.print_cost = print_cost
         self.parameters = []  # Saves trained parameters within the model.
         self.costs = []  # Saves cost within the model after training.
+        self.save_dir = os.getcwd() + save_dir  # Used to load and save the model parameters.
+        self.filename = filename
 
     def fit(self, X, Y):
         """
@@ -337,3 +344,16 @@ class NeuralNetwork:
     def predict(self, x):
         AL, caches = L_model_forward(x, self.parameters)
         return AL
+
+    def save_parameters(self):
+        print("Saving to", self.save_dir + self.filename)
+
+        # Check if save_dir exists, if not, make it:
+        Path(self.save_dir).mkdir(exist_ok=True)
+
+        # Numpy.save() saves a numpy array to a file.
+        np.save(self.save_dir + self.filename, self.parameters)
+
+    def load_parameters(self):
+        # Load saved file into parameters array:
+        self.parameters = np.load(self.save_dir + self.filename, allow_pickle=True)
