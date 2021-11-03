@@ -12,15 +12,26 @@ nn = NeuralNetwork(layers_dims, learning_rate=0.005, num_iterations=1800, print_
 nn.load_parameters()
 
 # Prepare image for prediction:
-path = '../data/cats/cat.JPG'
+cat = '../data/cats/cat.jpg'
+beer = '../data/cats/beer.jpg'
 num_px = 64
 
-image = np.array(Image.open(path).resize((num_px, num_px)))
-plt.imshow(image)
-image = image / 255.
-image = image.reshape((1, num_px * num_px * 3)).T
+image_1 = np.array(Image.open(beer).resize((num_px, num_px)))
+plt.imshow(image_1)
+image_1 = image_1 / 255.
+image_1 = image_1.reshape((1, num_px * num_px * 3)).T
+
 plt.show()
 
-prediction = nn.predict(image)
-print(f'Output: {prediction}')
-print('Prediction: ' + 'cat' if prediction >= 0.5 else 'non-cat')
+image_2 = np.array(Image.open(cat).resize((num_px, num_px)))
+plt.imshow(image_2)
+image_2 = image_2 / 255.
+image_2 = image_2.reshape((1, num_px * num_px * 3)).T
+
+plt.show()
+
+prediction_1 = np.squeeze(nn.predict(image_1))
+print(f'First image prediction - {np.round(prediction_1, 3)}:', 'cat' if prediction_1 >= 0.5 else 'non-cat')
+
+prediction_2 = np.squeeze(nn.predict(image_2))
+print(f'Second image prediction - {np.round(prediction_2, 3)} :', 'cat' if prediction_2 >= 0.5 else 'non-cat')
