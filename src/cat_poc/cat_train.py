@@ -1,4 +1,3 @@
-from PIL import Image
 import numpy as np
 import h5py
 import matplotlib.pyplot as plt
@@ -64,7 +63,7 @@ nn = NeuralNetwork(layers_dims, learning_rate=0.005, num_iterations=1800, print_
 nn.fit(train_x, train_y)
 
 # Save parameters for later use:
-nn.save_parameters()
+nn.save_model()
 
 # Plot cost over time:
 fig, ax = plt.subplots()

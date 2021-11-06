@@ -1,7 +1,6 @@
 import numpy as np
 import math_operations
 import time
-import os
 from pathlib import Path
 
 
@@ -263,7 +262,7 @@ def update_parameters(parameters, grads, learning_rate):
 
 
 class NeuralNetwork:
-    def __init__(self, layers_dims, learning_rate=0.0075, num_iterations=3000, print_cost=False,
+    def __init__(self, layers_dims=[], learning_rate=0.0075, num_iterations=3000, print_cost=False,
                  save_dir='./../save_files/', filename='parameters.npy'):
         """
         layers_dims -- list containing the input size and each layer size, of length (number of layers + 1).
@@ -345,7 +344,7 @@ class NeuralNetwork:
         AL, caches = L_model_forward(x, self.parameters)
         return AL
 
-    def save_parameters(self):
+    def save_model(self):
         print("Saving parameters to", "'" + self.save_dir + self.filename + "'...")
 
         # Check if save_dir exists, if not, make it:
@@ -353,10 +352,12 @@ class NeuralNetwork:
 
         # Numpy.save() saves a numpy array to a file.
         np.save(self.save_dir + self.filename, self.parameters)
+        np.save(self.save_dir + "layers_dims.npy", self.layers_dims)
 
-    def load_parameters(self):
+    def load_model(self):
         try:
             # Load saved file into parameters array. Use .item() to retrieve all dictionaries:
             self.parameters = np.load(self.save_dir + self.filename, allow_pickle=True).item()
+            self.layers_dims = np.load(self.save_dir + "layers_dims.npy")
         except ValueError:
             raise Exception("Parameters cannot be empty.")

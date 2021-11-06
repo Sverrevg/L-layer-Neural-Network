@@ -4,26 +4,24 @@ import matplotlib.pyplot as plt
 
 from neural_net import NeuralNetwork
 
-# Constants
-layers_dims = [12288, 15, 9, 5, 1]  # 4-layer model
 
-nn = NeuralNetwork(layers_dims, learning_rate=0.005, num_iterations=1800, print_cost=True)
+nn = NeuralNetwork(learning_rate=0.005, num_iterations=1800, print_cost=True)
 
-nn.load_parameters()
+nn.load_model()
 
 # Prepare image for prediction:
 cat = '../data/cats/cat.jpg'
 beer = '../data/cats/beer.jpg'
 num_px = 64
 
-image_1 = np.array(Image.open(beer).resize((num_px, num_px)))
+image_1 = np.array(Image.open(cat).resize((num_px, num_px)))
 plt.imshow(image_1)
 image_1 = image_1 / 255.
 image_1 = image_1.reshape((1, num_px * num_px * 3)).T
 
 plt.show()
 
-image_2 = np.array(Image.open(cat).resize((num_px, num_px)))
+image_2 = np.array(Image.open(beer).resize((num_px, num_px)))
 plt.imshow(image_2)
 image_2 = image_2 / 255.
 image_2 = image_2.reshape((1, num_px * num_px * 3)).T
