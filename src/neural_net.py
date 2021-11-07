@@ -66,16 +66,19 @@ def linear_activation_forward(A_prev, W, b, activation):
     cache -- a python dictionary containing "linear_cache" and "activation_cache";
              stored for computing the backward pass efficiently
     """
+    if activation == "relu":
+        # Inputs: "A_prev, W, b". Outputs: "A, activation_cache".
+        Z, linear_cache = linear_forward(A_prev, W, b)
+        A, activation_cache = math_operations.relu(Z)
 
-    if activation == "sigmoid":
+    elif activation == "sigmoid":
         # Inputs: "A_prev, W, b". Outputs: "A, activation_cache".
         Z, linear_cache = linear_forward(A_prev, W, b)
         A, activation_cache = math_operations.sigmoid(Z)
 
-    elif activation == "relu":
-        # Inputs: "A_prev, W, b". Outputs: "A, activation_cache".
+    elif activation == "softmax":
         Z, linear_cache = linear_forward(A_prev, W, b)
-        A, activation_cache = math_operations.relu(Z)
+        A, activation_cache = math_operations.softmax(Z)
 
     assert (A.shape == (W.shape[0], A_prev.shape[1]))
     cache = (linear_cache, activation_cache)
@@ -83,7 +86,7 @@ def linear_activation_forward(A_prev, W, b, activation):
     return A, cache
 
 
-def L_model_forward(X, parameters):
+def L_model_forward(X, parameters, activation):
     """
     Implement forward propagation for the [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID computation
 
@@ -109,10 +112,9 @@ def L_model_forward(X, parameters):
                                              activation="relu")
         caches.append(cache)
 
-    # Implement LINEAR -> SIGMOID. Add "cache" to the "caches" list.
-    AL, cache = linear_activation_forward(A, parameters[f'W{L}'], parameters[f'b{L}'], activation="sigmoid")
+    # Implement LINEAR -> SIGMOID or SOFTMAX. Add "cache" to the "caches" list.
+    AL, cache = linear_activation_forward(A, parameters[f'W{L}'], parameters[f'b{L}'], activation=activation)
     caches.append(cache)
-
     assert (AL.shape == (1, X.shape[1]))
 
     return AL, caches
@@ -182,6 +184,7 @@ def linear_activation_backward(dA, cache, activation):
     dW -- Gradient of the cost with respect to W (current layer l), same shape as W
     db -- Gradient of the cost with respect to b (current layer l), same shape as b
     """
+    # Unpack tuple:
     linear_cache, activation_cache = cache
 
     if activation == "relu":
@@ -191,11 +194,14 @@ def linear_activation_backward(dA, cache, activation):
     elif activation == "sigmoid":
         dZ = math_operations.sigmoid_backward(dA, activation_cache)
         dA_prev, dW, db = linear_backward(dZ, linear_cache)
+    elif activation == "softmax":
+        dZ = math_operations.softmax_backward(dA, activation_cache)
+        dA_prev, dW, db = linear_backward(dZ, linear_cache)
 
     return dA_prev, dW, db
 
 
-def L_model_backward(AL, Y, caches):
+def L_model_backward(AL, Y, caches, activation):
     """
     Implement the backward propagation for the [LINEAR->RELU] * (L-1) -> LINEAR -> SIGMOID group
 
@@ -220,10 +226,10 @@ def L_model_backward(AL, Y, caches):
     # Initializing the backpropagation
     dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
 
-    # Lth layer (SIGMOID -> LINEAR) gradients.
+    # Lth layer (SIGMOID/SOFTMAX -> LINEAR) gradients.
     current_cache = caches[L - 1]
     grads[f'dA{L - 1}'], grads[f'dW{L}'], grads[f'db{L}'] = linear_activation_backward(dAL, current_cache,
-                                                                                       activation="sigmoid")
+                                                                                       activation=activation)
 
     for l in reversed(range(L - 1)):
         # lth layer: (RELU -> LINEAR) gradients.
@@ -262,7 +268,8 @@ def update_parameters(parameters, grads, learning_rate):
 
 
 class NeuralNetwork:
-    def __init__(self, layers_dims=[], learning_rate=0.0075, num_iterations=3000, print_cost=False,
+    def __init__(self, layers_dims=[], learning_rate=0.0075, num_iterations=3000, activation="sigmoid",
+                 print_cost=False,
                  save_dir='./../save_files/', filename='parameters.npy'):
         """
         layers_dims -- list containing the input size and each layer size, of length (number of layers + 1).
@@ -280,6 +287,7 @@ class NeuralNetwork:
         self.costs = []  # Saves cost within the model after training.
         self.save_dir = save_dir  # Used to load and save the model parameters.
         self.filename = filename
+        self.output_activation = activation
 
     def fit(self, X, Y):
         """
@@ -301,15 +309,14 @@ class NeuralNetwork:
 
         # Loop (gradient descent)
         for i in range(0, self.num_iterations):
-
             # Forward propagation: [LINEAR -> RELU]*(L-1) -> LINEAR -> SIGMOID.
-            AL, caches = L_model_forward(X, parameters)
+            AL, caches = L_model_forward(X, parameters, self.output_activation)
 
             # Compute cost.
             cost = compute_cost(AL, Y)
 
             # Backward propagation.
-            grads = L_model_backward(AL, Y, caches)
+            grads = L_model_backward(AL, Y, caches, self.output_activation)
 
             # Update parameters.
             self.parameters = update_parameters(parameters, grads, self.learning_rate)
@@ -330,7 +337,7 @@ class NeuralNetwork:
         m = X.shape[1]
         p = np.zeros((1, m))
 
-        predictions, caches = L_model_forward(X, self.parameters)
+        predictions, caches = L_model_forward(X, self.parameters, self.output_activation)
 
         for i in range(0, predictions.shape[1]):
             if predictions[0, i] > 0.5:
@@ -341,7 +348,7 @@ class NeuralNetwork:
         print("Test accuracy: " + str(np.round(np.sum((p == y) / m))))
 
     def predict(self, x):
-        AL, caches = L_model_forward(x, self.parameters)
+        AL, caches = L_model_forward(x, self.parameters, self.output_activation)
         return AL
 
     def save_model(self):
