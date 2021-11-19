@@ -142,7 +142,7 @@ def compute_cost(AL, Y, activation):
         cost = (1. / m) * (-np.dot(Y, np.log(AL).T) - np.dot(1 - Y, np.log(1 - AL).T))
 
     else:
-        cost = - np.sum(np.dot(Y, np.log(AL).T))
+        cost = math_operations.softmax(Y) - AL
 
     cost = np.squeeze(cost)  # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
 
@@ -231,6 +231,7 @@ def L_model_backward(AL, Y, caches, activation):
         Y = Y.reshape(AL.shape)  # after this line, Y is the same shape as AL
 
     # Initializing the backpropagation
+
     dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
 
     # Lth layer (SIGMOID/SOFTMAX -> LINEAR) gradients.
