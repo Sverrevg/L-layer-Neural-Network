@@ -55,7 +55,7 @@ print(f'y_test shape: {y_test.shape}')
 # Constants
 input_dim = X_train.shape[0]
 output_dim = df['class'].nunique()
-layers_dims = [input_dim, 6, output_dim]  # 4-layer model
+layers_dims = [input_dim, 8, output_dim]  # 4-layer model
 
 nn = NeuralNetwork(layers_dims, num_iterations=1500, activation="sigmoid", loss="categorical-cross-entropy")
 
