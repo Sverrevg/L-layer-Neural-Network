@@ -367,11 +367,9 @@ class NeuralNetwork:
 
             print("Test accuracy: " + str(np.round(np.sum((p == y) / m))))
         else:
-            labels = []
             for i in range(m):
                 # Get the index of correct label:
                 label = np.where(y[:, i] == 1)[0].item()
-                labels.append(label)
 
                 # Get the index of highest probable prediction:
                 max = np.where(predictions[:, i] == np.amax(predictions[:, i]))[0].item()

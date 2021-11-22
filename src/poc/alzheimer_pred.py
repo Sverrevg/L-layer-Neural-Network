@@ -68,8 +68,8 @@ y_train = np.swapaxes(y_train, 0, 1)
 X_test = np.swapaxes(X_test, 0, 1)
 y_test = np.swapaxes(y_test, 0, 1)
 
-X_train = X_train[::, :1]
-y_train = y_train[::, :1]
+X_train = X_train[::, :5]
+y_train = y_train[::, :5]
 
 print(f'X_train shape: {X_train.shape}')
 print(f'y_train shape: {y_train.shape}')
