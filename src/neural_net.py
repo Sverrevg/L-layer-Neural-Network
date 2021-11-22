@@ -334,11 +334,16 @@ class NeuralNetwork:
             # Update parameters.
             self.parameters = update_parameters(parameters, grads, self.learning_rate)
 
+            cost_rounded = np.squeeze(np.round(cost, 3))
+
             # Print the cost every 100 iterations
             if self.print_cost and i % 100 == 0 or i == self.num_iterations - 1:
-                print("Cost after iteration {}: {}".format(i, np.squeeze(np.round(cost, 3))))
+                print("Cost after iteration {}: {}".format(i, cost_rounded))
             if i % 100 == 0 or i == self.num_iterations:
                 costs.append(np.max(cost))
+
+            # Print cost between 100 iterations:
+            print(f'Cost iteration {i}: {cost_rounded}', end='\r')
 
         execution_time = (time.time() - startTime)
         print('Execution time in seconds: ' + str(round(execution_time, 2)))
