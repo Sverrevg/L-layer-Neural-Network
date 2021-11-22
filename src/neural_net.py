@@ -120,7 +120,7 @@ def L_model_forward(X, parameters, activation, output_shape):
     return AL, caches
 
 
-def compute_cost(AL, Y, activation):
+def compute_cost(AL, Y, loss):
     """
     Implement the cost function defined by equation (7).
 
@@ -136,13 +136,13 @@ def compute_cost(AL, Y, activation):
     N = AL.shape[1]
 
     # Cross entropy for binary classification. Different formula:
-    if activation == "sigmoid":
-
+    if loss == "binary-cross-entropy":
         # Compute loss from aL and y.
         cost = (1. / m) * (-np.dot(Y, np.log(AL).T) - np.dot(1 - Y, np.log(1 - AL).T))
 
-    else:
-        cost = math_operations.softmax(Y) - AL
+    elif loss == "categorical-cross-entropy":
+        # Categorical cross-entropy
+        cost = - np.sum(np.multiply(Y, np.log(AL)))
 
     cost = np.squeeze(cost)  # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
 
@@ -207,7 +207,7 @@ def linear_activation_backward(dA, cache, activation):
     return dA_prev, dW, db
 
 
-def L_model_backward(AL, Y, caches, activation):
+def L_model_backward(AL, Y, caches, loss, activation):
     """
     Implement the backward propagation for the [LINEAR->RELU] * (L-1) -> LINEAR -> SIGMOID group
 
@@ -227,11 +227,10 @@ def L_model_backward(AL, Y, caches, activation):
     grads = {}
     L = len(caches)  # the number of layers
     m = AL.shape[1]
-    if activation != "softmax":
+    if loss == "binary-cross-entropy":
         Y = Y.reshape(AL.shape)  # after this line, Y is the same shape as AL
 
     # Initializing the backpropagation
-
     dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
 
     # Lth layer (SIGMOID/SOFTMAX -> LINEAR) gradients.
@@ -277,7 +276,8 @@ def update_parameters(parameters, grads, learning_rate):
 
 class NeuralNetwork:
     def __init__(self, layers_dims=[], learning_rate=0.0075, num_iterations=3000, activation="sigmoid",
-                 print_cost=False,
+                 loss="binary-cross-entropy",
+                 print_cost=True,
                  save_dir='./../save_files/', filename='parameters.npy'):
         """
         layers_dims -- list containing the input size and each layer size, of length (number of layers + 1).
@@ -296,6 +296,7 @@ class NeuralNetwork:
         self.save_dir = save_dir  # Used to load and save the model parameters.
         self.filename = filename
         self.output_activation = activation
+        self.loss = loss
 
         if len(layers_dims) > 0:
             self.output_shape = layers_dims[-1]
@@ -312,6 +313,7 @@ class NeuralNetwork:
         Costs - used to plot costs over time for model insight.
         """
         startTime = time.time()
+
         np.random.seed(1)
         costs = []  # keep track of cost
 
@@ -324,10 +326,10 @@ class NeuralNetwork:
             AL, caches = L_model_forward(X, parameters, self.output_activation, self.output_shape)
 
             # Compute cost.
-            cost = compute_cost(AL, Y, self.output_activation)
+            cost = compute_cost(AL, Y, self.loss)
 
             # Backward propagation.
-            grads = L_model_backward(AL, Y, caches, self.output_activation)
+            grads = L_model_backward(AL, Y, caches, self.loss, self.output_activation)
 
             # Update parameters.
             self.parameters = update_parameters(parameters, grads, self.learning_rate)
@@ -350,13 +352,35 @@ class NeuralNetwork:
 
         predictions, caches = L_model_forward(X, self.parameters, self.output_activation, self.output_shape)
 
-        for i in range(0, predictions.shape[1]):
-            if predictions[0, i] > 0.5:
-                p[0, i] = 1
-            else:
-                p[0, i] = 0
+        if self.loss == "binary-cross-entropy":
+            for i in range(m):
+                if predictions[0, i] > 0.5:
+                    p[0, i] = 1
+                else:
+                    p[0, i] = 0
 
-        print("Test accuracy: " + str(np.round(np.sum((p == y) / m))))
+            print("Test accuracy: " + str(np.round(np.sum((p == y) / m))))
+        else:
+            labels = []
+            for i in range(m):
+                # Get the index of correct label:
+                label = np.where(y[:, i] == 1)[0].item()
+                labels.append(label)
+
+                # Get the index of highest probable prediction:
+                max = np.where(predictions[:, i] == np.amax(predictions[:, i]))[0].item()
+
+                # Compare. If max does not equal prediction, then assign 0:
+                if max == label:
+                    p[0, i] = 1
+                else:
+                    p[0, i] = 0
+
+            predictions_correct = np.sum(p)
+            total = np.sum(m)
+            accuracy = predictions_correct / total
+
+            print(f'Test accuracy: {accuracy}')
 
     def predict(self, x):
         AL, caches = L_model_forward(x, self.parameters, self.output_activation, self.output_shape)
