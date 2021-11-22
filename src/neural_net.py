@@ -86,7 +86,7 @@ def linear_activation_forward(A_prev, W, b, activation):
     return A, cache
 
 
-def L_model_forward(X, parameters, activation):
+def L_model_forward(X, parameters, activation, output_shape):
     """
     Implement forward propagation for the [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID computation
 
@@ -115,12 +115,12 @@ def L_model_forward(X, parameters, activation):
     # Implement LINEAR -> SIGMOID or SOFTMAX. Add "cache" to the "caches" list.
     AL, cache = linear_activation_forward(A, parameters[f'W{L}'], parameters[f'b{L}'], activation=activation)
     caches.append(cache)
-    assert (AL.shape == (1, X.shape[1]))
+    assert (AL.shape == (output_shape, X.shape[1]))
 
     return AL, caches
 
 
-def compute_cost(AL, Y):
+def compute_cost(AL, Y, loss):
     """
     Implement the cost function defined by equation (7).
 
@@ -131,14 +131,20 @@ def compute_cost(AL, Y):
     Returns:
     cost -- cross-entropy cost
     """
-
+    # Amount of images
     m = Y.shape[1]
+    N = AL.shape[1]
 
-    # Compute loss from aL and y.
-    cost = (1. / m) * (-np.dot(Y, np.log(AL).T) - np.dot(1 - Y, np.log(1 - AL).T))
+    # Cross entropy for binary classification. Different formula:
+    if loss == "binary-cross-entropy":
+        # Compute loss from aL and y.
+        cost = (1. / m) * (-np.dot(Y, np.log(AL).T) - np.dot(1 - Y, np.log(1 - AL).T))
+
+    elif loss == "categorical-cross-entropy":
+        # Categorical cross-entropy
+        cost = - np.sum(np.multiply(Y, np.log(AL)))
 
     cost = np.squeeze(cost)  # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
-    assert (cost.shape == ())
 
     return cost
 
@@ -189,19 +195,19 @@ def linear_activation_backward(dA, cache, activation):
 
     if activation == "relu":
         dZ = math_operations.relu_backward(dA, activation_cache)
-        dA_prev, dW, db = linear_backward(dZ, linear_cache)
 
     elif activation == "sigmoid":
         dZ = math_operations.sigmoid_backward(dA, activation_cache)
-        dA_prev, dW, db = linear_backward(dZ, linear_cache)
+
     elif activation == "softmax":
         dZ = math_operations.softmax_backward(dA, activation_cache)
-        dA_prev, dW, db = linear_backward(dZ, linear_cache)
+
+    dA_prev, dW, db = linear_backward(dZ, linear_cache)
 
     return dA_prev, dW, db
 
 
-def L_model_backward(AL, Y, caches, activation):
+def L_model_backward(AL, Y, caches, loss, activation):
     """
     Implement the backward propagation for the [LINEAR->RELU] * (L-1) -> LINEAR -> SIGMOID group
 
@@ -221,7 +227,8 @@ def L_model_backward(AL, Y, caches, activation):
     grads = {}
     L = len(caches)  # the number of layers
     m = AL.shape[1]
-    Y = Y.reshape(AL.shape)  # after this line, Y is the same shape as AL
+    if loss == "binary-cross-entropy":
+        Y = Y.reshape(AL.shape)  # after this line, Y is the same shape as AL
 
     # Initializing the backpropagation
     dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
@@ -269,7 +276,8 @@ def update_parameters(parameters, grads, learning_rate):
 
 class NeuralNetwork:
     def __init__(self, layers_dims=[], learning_rate=0.0075, num_iterations=3000, activation="sigmoid",
-                 print_cost=False,
+                 loss="binary-cross-entropy",
+                 print_cost=True,
                  save_dir='./../save_files/', filename='parameters.npy'):
         """
         layers_dims -- list containing the input size and each layer size, of length (number of layers + 1).
@@ -288,6 +296,10 @@ class NeuralNetwork:
         self.save_dir = save_dir  # Used to load and save the model parameters.
         self.filename = filename
         self.output_activation = activation
+        self.loss = loss
+
+        if len(layers_dims) > 0:
+            self.output_shape = layers_dims[-1]
 
     def fit(self, X, Y):
         """
@@ -301,6 +313,7 @@ class NeuralNetwork:
         Costs - used to plot costs over time for model insight.
         """
         startTime = time.time()
+
         np.random.seed(1)
         costs = []  # keep track of cost
 
@@ -310,13 +323,13 @@ class NeuralNetwork:
         # Loop (gradient descent)
         for i in range(0, self.num_iterations):
             # Forward propagation: [LINEAR -> RELU]*(L-1) -> LINEAR -> SIGMOID.
-            AL, caches = L_model_forward(X, parameters, self.output_activation)
+            AL, caches = L_model_forward(X, parameters, self.output_activation, self.output_shape)
 
             # Compute cost.
-            cost = compute_cost(AL, Y)
+            cost = compute_cost(AL, Y, self.loss)
 
             # Backward propagation.
-            grads = L_model_backward(AL, Y, caches, self.output_activation)
+            grads = L_model_backward(AL, Y, caches, self.loss, self.output_activation)
 
             # Update parameters.
             self.parameters = update_parameters(parameters, grads, self.learning_rate)
@@ -337,18 +350,40 @@ class NeuralNetwork:
         m = X.shape[1]
         p = np.zeros((1, m))
 
-        predictions, caches = L_model_forward(X, self.parameters, self.output_activation)
+        predictions, caches = L_model_forward(X, self.parameters, self.output_activation, self.output_shape)
 
-        for i in range(0, predictions.shape[1]):
-            if predictions[0, i] > 0.5:
-                p[0, i] = 1
-            else:
-                p[0, i] = 0
+        if self.loss == "binary-cross-entropy":
+            for i in range(m):
+                if predictions[0, i] > 0.5:
+                    p[0, i] = 1
+                else:
+                    p[0, i] = 0
 
-        print("Test accuracy: " + str(np.round(np.sum((p == y) / m))))
+            print("Test accuracy: " + str(np.round(np.sum((p == y) / m))))
+        else:
+            labels = []
+            for i in range(m):
+                # Get the index of correct label:
+                label = np.where(y[:, i] == 1)[0].item()
+                labels.append(label)
+
+                # Get the index of highest probable prediction:
+                max = np.where(predictions[:, i] == np.amax(predictions[:, i]))[0].item()
+
+                # Compare. If max does not equal prediction, then assign 0:
+                if max == label:
+                    p[0, i] = 1
+                else:
+                    p[0, i] = 0
+
+            predictions_correct = np.sum(p)
+            total = np.sum(m)
+            accuracy = predictions_correct / total
+
+            print(f'Test accuracy: {accuracy}')
 
     def predict(self, x):
-        AL, caches = L_model_forward(x, self.parameters, self.output_activation)
+        AL, caches = L_model_forward(x, self.parameters, self.output_activation, self.output_shape)
         return AL
 
     def save_model(self):
@@ -366,5 +401,6 @@ class NeuralNetwork:
             # Load saved file into parameters array. Use .item() to retrieve all dictionaries:
             self.parameters = np.load(self.save_dir + self.filename, allow_pickle=True).item()
             self.layers_dims = np.load(self.save_dir + "layers_dims.npy")
+            self.output_shape = self.layers_dims[-1]
         except ValueError:
             raise Exception("Parameters cannot be empty.")
