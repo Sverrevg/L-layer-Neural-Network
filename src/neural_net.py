@@ -143,6 +143,7 @@ def compute_cost(AL, Y, loss):
     elif loss == "categorical-cross-entropy":
         # Categorical cross-entropy
         cost = - np.sum(np.multiply(Y, np.log(AL)))
+        cost = cost / m
 
     cost = np.squeeze(cost)  # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
 

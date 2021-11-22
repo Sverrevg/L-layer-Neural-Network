@@ -80,8 +80,9 @@ y_train = np.swapaxes(y_train, 0, 1)
 X_test = np.swapaxes(X_test, 0, 1)
 y_test = np.swapaxes(y_test, 0, 1)
 
-X_train = X_train[::, :1000]
-y_train = y_train[::, :1000]
+# Truncate dataset:
+X_train = X_train[::, :2000]
+y_train = y_train[::, :2000]
 
 print(f'X_train shape: {X_train.shape}')
 print(f'y_train shape: {y_train.shape}')
@@ -93,8 +94,9 @@ input_dim = X_train.shape[0]
 
 layers_dims = [input_dim, 64, 32, 4]
 
-nn = NeuralNetwork(learning_rate=0.0075, layers_dims=layers_dims, activation="sigmoid", loss="categorical-cross-entropy",
-                   num_iterations=5000)
+nn = NeuralNetwork(learning_rate=0.0075, layers_dims=layers_dims, activation="sigmoid",
+                   loss="categorical-cross-entropy",
+                   num_iterations=2500)
 
 nn.fit(X_train, y_train)
 
