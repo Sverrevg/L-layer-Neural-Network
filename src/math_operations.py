@@ -1,3 +1,4 @@
+import gnumpy as gnp
 import numpy as np
 
 """
@@ -16,7 +17,7 @@ def sigmoid(Z):
     A -- output of sigmoid(z), same shape as Z
     cache -- returns Z as well, useful during backpropagation
     """
-    A = 1 / (1 + np.exp(-Z))
+    A = gnp.logistic(Z)  # GNumPY logistic function.
     cache = Z
 
     return A, cache
@@ -50,11 +51,11 @@ def softmax(Z):
     Z -- array of all values from last layer
     """
     """Compute the softmax of vector x in a numerically stable way."""
-    shift_z = Z - np.max(Z)
-    A = np.exp(shift_z)
+    shift_z = Z - gnp.max(Z)
+    A = gnp.exp(shift_z)
     cache = Z
 
-    return A / np.sum(A), cache
+    return A / gnp.sum(A), cache
 
 
 def relu_backward(dA, cache):
@@ -69,7 +70,7 @@ def relu_backward(dA, cache):
     dZ -- Gradient of the cost with respect to Z
     """
     Z = cache
-    dZ = np.array(dA, copy=True)  # just converting dz to a correct object.
+    dZ = gnp.garray(dA, copy=True)  # just converting dz to a correct object.
 
     # When z <= 0, you should set dz to 0 as well.
     dZ[Z <= 0] = 0
@@ -92,7 +93,7 @@ def sigmoid_backward(dA, cache):
     """
     Z = cache
 
-    s = 1 / (1 + np.exp(-Z))
+    s = gnp.logistic(Z)
     dZ = dA * s * (1 - s)
 
     assert (dZ.shape == Z.shape)
@@ -115,7 +116,7 @@ def softmax_backward(dA, cache):
     """
     Z = cache
 
-    s = np.exp(Z) / (np.sum(np.exp(Z)))
+    s = gnp.exp(Z) / (gnp.sum(gnp.exp(Z)))
     dZ = dA * s * (1 - s)
 
     assert (dZ.shape == Z.shape)
