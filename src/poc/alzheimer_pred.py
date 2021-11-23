@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 import numpy as np
-from PIL import Image
 from imblearn.over_sampling import SMOTE
 from random import randint
 from sklearn.model_selection import train_test_split
@@ -88,5 +87,5 @@ nn = NeuralNetwork(learning_rate=0.005, layers_dims=layers_dims, activation="sig
 nn.load_model()
 
 # Test model:
-predictions = nn.predict(X_train)
+predictions = nn.test(X_train, y_train)
 print(predictions)

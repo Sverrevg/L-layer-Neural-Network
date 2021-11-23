@@ -1,7 +1,7 @@
 import os
 
 import matplotlib.pyplot as plt
-import numpy as np  # linear algebra
+import numpy as np
 from imblearn.over_sampling import SMOTE
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
@@ -81,8 +81,8 @@ X_test = np.swapaxes(X_test, 0, 1)
 y_test = np.swapaxes(y_test, 0, 1)
 
 # Truncate dataset:
-X_train = X_train[::, :2000]
-y_train = y_train[::, :2000]
+# X_train = X_train[::, :2000]
+# y_train = y_train[::, :2000]
 
 print(f'X_train shape: {X_train.shape}')
 print(f'y_train shape: {y_train.shape}')
