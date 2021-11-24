@@ -16,7 +16,7 @@ def sigmoid(Z):
     A -- output of sigmoid(z), same shape as Z
     cache -- returns Z as well, useful during backpropagation
     """
-    A = np.logistic(Z)  # GNumPY logistic function.
+    A = 1 / (1 + np.exp(-Z))
     cache = Z
 
     return A, cache
@@ -69,7 +69,7 @@ def relu_backward(dA, cache):
     dZ -- Gradient of the cost with respect to Z
     """
     Z = cache
-    dZ = np.garray(dA, copy=True)  # just converting dz to a correct object.
+    dZ = np.array(dA, copy=True)  # just converting dz to a correct object.
 
     # When z <= 0, you should set dz to 0 as well.
     dZ[Z <= 0] = 0
@@ -92,7 +92,7 @@ def sigmoid_backward(dA, cache):
     """
     Z = cache
 
-    s = np.logistic(Z)
+    s = 1 / (1 + np.exp(-Z))
     dZ = dA * s * (1 - s)
 
     assert (dZ.shape == Z.shape)
