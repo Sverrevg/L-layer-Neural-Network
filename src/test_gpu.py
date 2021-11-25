@@ -1,8 +1,7 @@
-from gpu_math_operations import math_operations
+import gpu_math_operations
 
 import numpy as np
 
-Z = np.array([1, 4, 6, 7])
-m = math_operations()
+Z = np.array([2, 4])
 
-print(m.quadratic(Z))
+print(gpu_math_operations.quadratic(Z))
