@@ -87,5 +87,5 @@ nn = NeuralNetwork(learning_rate=0.005, layers_dims=layers_dims, activation="sig
 nn.load_model()
 
 # Test model:
-predictions = nn.test(X_train, y_train)
+predictions = nn.test(X_test, y_test)
 print(predictions)
