@@ -3,6 +3,8 @@ import math_operations
 import time
 from pathlib import Path
 
+from network_options import Activations, Loss
+
 
 def initialize_parameters_deep(layer_dims):
     """
@@ -66,17 +68,17 @@ def linear_activation_forward(A_prev, W, b, activation):
     cache -- a python dictionary containing "linear_cache" and "activation_cache";
              stored for computing the backward pass efficiently
     """
-    if activation == "relu":
+    if activation == Activations.RELU.value:
         # Inputs: "A_prev, W, b". Outputs: "A, activation_cache".
         Z, linear_cache = linear_forward(A_prev, W, b)
         A, activation_cache = math_operations.relu(Z)
 
-    elif activation == "sigmoid":
+    elif activation == Activations.SIGMOID.value:
         # Inputs: "A_prev, W, b". Outputs: "A, activation_cache".
         Z, linear_cache = linear_forward(A_prev, W, b)
         A, activation_cache = math_operations.sigmoid(Z)
 
-    elif activation == "softmax":
+    elif activation == Activations.SOFTMAX.value:
         Z, linear_cache = linear_forward(A_prev, W, b)
         A, activation_cache = math_operations.softmax(Z)
 
@@ -136,11 +138,11 @@ def compute_cost(AL, Y, loss):
     N = AL.shape[1]
 
     # Cross entropy for binary classification. Different formula:
-    if loss == "binary-cross-entropy":
+    if loss == Loss.BINARY:
         # Compute loss from aL and y.
         cost = (1. / m) * (-np.dot(Y, np.log(AL).T) - np.dot(1 - Y, np.log(1 - AL).T))
 
-    elif loss == "categorical-cross-entropy":
+    elif loss == Loss.CATEGORICAL:
         # Categorical cross-entropy
         cost = - np.sum(np.multiply(Y, np.log(AL)))
         cost = cost / m
@@ -194,13 +196,13 @@ def linear_activation_backward(dA, cache, activation):
     # Unpack tuple:
     linear_cache, activation_cache = cache
 
-    if activation == "relu":
+    if activation == Activations.RELU.value:
         dZ = math_operations.relu_backward(dA, activation_cache)
 
-    elif activation == "sigmoid":
+    elif activation == Activations.SIGMOID.value:
         dZ = math_operations.sigmoid_backward(dA, activation_cache)
 
-    elif activation == "softmax":
+    elif activation == Activations.SOFTMAX.value:
         dZ = math_operations.softmax_backward(dA, activation_cache)
 
     dA_prev, dW, db = linear_backward(dZ, linear_cache)
@@ -228,7 +230,7 @@ def L_model_backward(AL, Y, caches, loss, activation):
     grads = {}
     L = len(caches)  # the number of layers
     m = AL.shape[1]
-    if loss == "binary-cross-entropy":
+    if loss == Loss.BINARY:
         Y = Y.reshape(AL.shape)  # after this line, Y is the same shape as AL
 
     # Initializing the backpropagation
@@ -276,8 +278,8 @@ def update_parameters(parameters, grads, learning_rate):
 
 
 class NeuralNetwork:
-    def __init__(self, layers_dims=[], learning_rate=0.0075, num_iterations=3000, activation="sigmoid",
-                 loss="binary-cross-entropy",
+    def __init__(self, layers_dims=[], learning_rate=0.0075, num_iterations=3000, activation=Activations.SIGMOID,
+                 loss=Loss.BINARY,
                  print_cost=True,
                  save_dir='./../save_files/', filename='parameters.npy'):
         """
@@ -358,7 +360,7 @@ class NeuralNetwork:
 
         predictions, caches = L_model_forward(X, self.parameters, self.output_activation, self.output_shape)
 
-        if self.loss == "binary-cross-entropy":
+        if self.loss == Loss.BINARY.value:
             for i in range(m):
                 if predictions[0, i] > 0.5:
                     p[0, i] = 1

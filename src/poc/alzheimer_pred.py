@@ -8,6 +8,7 @@ from random import randint
 from sklearn.model_selection import train_test_split
 
 from neural_net import NeuralNetwork
+from network_options import Activations, Loss
 
 # Get directories
 base_dir = '../data/Alzheimer_s Dataset/'
@@ -80,8 +81,9 @@ input_dim = X_train.shape[0]
 
 layers_dims = [input_dim, 64, 16, 4]
 
-nn = NeuralNetwork(learning_rate=0.005, layers_dims=layers_dims, activation="sigmoid", loss="categorical-cross-entropy",
-                   num_iterations=2000)
+nn = NeuralNetwork(learning_rate=0.0075, layers_dims=layers_dims, activation=Activations.SIGMOID.value,
+                   loss=Loss.CATEGORICAL.value,
+                   num_iterations=2500)
 
 # Save parameters for later use:
 nn.load_model()
