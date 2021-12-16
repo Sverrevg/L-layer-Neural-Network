@@ -10,7 +10,7 @@ from sklearn.metrics import confusion_matrix
 import seaborn as sns
 
 from neural_net import NeuralNetwork
-from network_options import Activations, Loss
+from network_options import Activation, Loss
 
 # Get directories
 base_dir = '../data/Alzheimer_s Dataset/'
@@ -83,7 +83,7 @@ input_dim = X_train.shape[0]
 
 layers_dims = [input_dim, 64, 16, 4]
 
-nn = NeuralNetwork(learning_rate=0.0075, layers_dims=layers_dims, activation=Activations.SIGMOID.value,
+nn = NeuralNetwork(learning_rate=0.0075, layers_dims=layers_dims, activation=Activation.SIGMOID.value,
                    loss=Loss.CATEGORICAL.value,
                    num_iterations=2500)
 

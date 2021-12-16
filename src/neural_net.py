@@ -3,7 +3,7 @@ import math_operations
 import time
 from pathlib import Path
 
-from network_options import Activations, Loss
+from network_options import *
 
 
 def initialize_parameters_deep(layer_dims):
@@ -68,17 +68,17 @@ def linear_activation_forward(A_prev, W, b, activation):
     cache -- a python dictionary containing "linear_cache" and "activation_cache";
              stored for computing the backward pass efficiently
     """
-    if activation == Activations.RELU.value:
+    if activation == Activation.RELU.value:
         # Inputs: "A_prev, W, b". Outputs: "A, activation_cache".
         Z, linear_cache = linear_forward(A_prev, W, b)
         A, activation_cache = math_operations.relu(Z)
 
-    elif activation == Activations.SIGMOID.value:
+    elif activation == Activation.SIGMOID.value:
         # Inputs: "A_prev, W, b". Outputs: "A, activation_cache".
         Z, linear_cache = linear_forward(A_prev, W, b)
         A, activation_cache = math_operations.sigmoid(Z)
 
-    elif activation == Activations.SOFTMAX.value:
+    elif activation == Activation.SOFTMAX.value:
         Z, linear_cache = linear_forward(A_prev, W, b)
         A, activation_cache = math_operations.softmax(Z)
 
@@ -196,13 +196,13 @@ def linear_activation_backward(dA, cache, activation):
     # Unpack tuple:
     linear_cache, activation_cache = cache
 
-    if activation == Activations.RELU.value:
+    if activation == Activation.RELU.value:
         dZ = math_operations.relu_backward(dA, activation_cache)
 
-    elif activation == Activations.SIGMOID.value:
+    elif activation == Activation.SIGMOID.value:
         dZ = math_operations.sigmoid_backward(dA, activation_cache)
 
-    elif activation == Activations.SOFTMAX.value:
+    elif activation == Activation.SOFTMAX.value:
         dZ = math_operations.softmax_backward(dA, activation_cache)
 
     dA_prev, dW, db = linear_backward(dZ, linear_cache)
@@ -270,14 +270,14 @@ def update_parameters(parameters, grads, momentum, learning_rate, optimizer, ite
 
     L = len(parameters) // 2  # number of layers in the neural network.
 
-    if optimizer == 'stochastic-gradient-descent':
+    if optimizer == Optimizer.SGD:
         # Update rule for each parameter. Use a for loop.
         for l in range(L):
             parameters[f'W{l + 1}'] = parameters[f'W{l + 1}'] - learning_rate * grads[f'dW{l + 1}']
             parameters[f'b{l + 1}'] = parameters[f'b{l + 1}'] - learning_rate * grads[f'db{l + 1}']
 
     # Calculate v
-    if optimizer == 'stochastic-momentum':
+    if optimizer == Optimizer.SGDM:
         # At first iteration vw and vb equal gradients for each layer:
         for l in range(L):
             l += 1
@@ -300,9 +300,9 @@ def update_parameters(parameters, grads, momentum, learning_rate, optimizer, ite
 
 
 class NeuralNetwork:
-    def __init__(self, layers_dims=[], learning_rate=0.0075, num_iterations=3000, activation=Activations.SIGMOID,
+    def __init__(self, layers_dims=[], learning_rate=0.0075, num_iterations=3000, activation=Activation.SIGMOID,
                  loss=Loss.BINARY,
-                 optimizer='stochastic-gradient-descent',
+                 optimizer=Optimizer.SGDM,
                  print_cost=True,
                  beta=0.5,
                  save_dir='./../save_files/', filename='parameters.npy'):
@@ -389,7 +389,7 @@ class NeuralNetwork:
 
         predictions, caches = L_model_forward(X, self.parameters, self.output_activation, self.output_shape)
 
-        if self.loss == Loss.BINARY.value:
+        if self.loss == Loss.BINARY:
             for i in range(m):
                 if predictions[0, i] > 0.5:
                     p[0, i] = 1
