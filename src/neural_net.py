@@ -253,13 +253,14 @@ def L_model_backward(AL, Y, caches, loss, activation):
     return grads
 
 
-def update_parameters(parameters, grads, learning_rate):
+def update_parameters(parameters, grads, momentum, learning_rate, optimizer, iteration, beta):
     """
     Update parameters using gradient descent
 
     Arguments:
     parameters -- python dictionary containing your parameters
     grads -- python dictionary containing your gradients, output of L_model_backward
+    momentum -- python dictionary containing momenta from previous iteration
 
     Returns:
     parameters -- python dictionary containing your updated parameters
@@ -267,20 +268,43 @@ def update_parameters(parameters, grads, learning_rate):
                   parameters["b" + str(l)] = ...
     """
 
-    L = len(parameters) // 2  # number of layers in the neural network
+    L = len(parameters) // 2  # number of layers in the neural network.
 
-    # Update rule for each parameter. Use a for loop.
-    for l in range(L):
-        parameters[f'W{l + 1}'] = parameters[f'W{l + 1}'] - learning_rate * grads[f'dW{l + 1}']
-        parameters[f'b{l + 1}'] = parameters[f'b{l + 1}'] - learning_rate * grads[f'db{l + 1}']
+    if optimizer == 'stochastic-gradient-descent':
+        # Update rule for each parameter. Use a for loop.
+        for l in range(L):
+            parameters[f'W{l + 1}'] = parameters[f'W{l + 1}'] - learning_rate * grads[f'dW{l + 1}']
+            parameters[f'b{l + 1}'] = parameters[f'b{l + 1}'] - learning_rate * grads[f'db{l + 1}']
 
-    return parameters
+    # Calculate v
+    if optimizer == 'stochastic-momentum':
+        # At first iteration vw and vb equal gradients for each layer:
+        for l in range(L):
+            l += 1
+
+            if iteration == 0:
+                # Should only save one instance:
+                momentum[f'vw{l}'] = grads[f'dW{l}']
+                momentum[f'vb{l}'] = grads[f'db{l}']
+
+            elif iteration > 0:
+                # Calculate new momentum with values from previous iteration:
+                momentum[f'vw{l}'] = beta * momentum[f'vw{l}'] + grads[f'dW{l}']
+                momentum[f'vb{l}'] = beta * momentum[f'vb{l}'] + grads[f'db{l}']
+
+            # Update each parameter:
+            parameters[f'W{l}'] = parameters[f'W{l}'] - learning_rate * momentum[f'vw{l}']
+            parameters[f'b{l}'] = parameters[f'b{l}'] - learning_rate * momentum[f'vb{l}']
+
+    return parameters, momentum
 
 
 class NeuralNetwork:
     def __init__(self, layers_dims=[], learning_rate=0.0075, num_iterations=3000, activation=Activations.SIGMOID,
                  loss=Loss.BINARY,
+                 optimizer='stochastic-gradient-descent',
                  print_cost=True,
+                 beta=0.5,
                  save_dir='./../save_files/', filename='parameters.npy'):
         """
         layers_dims -- list containing the input size and each layer size, of length (number of layers + 1).
@@ -295,11 +319,14 @@ class NeuralNetwork:
         self.num_iterations = num_iterations
         self.print_cost = print_cost
         self.parameters = []  # Saves trained parameters within the model.
+        self.momentum = {}  # Saves momenta within the model.
         self.costs = []  # Saves cost within the model after training.
         self.save_dir = save_dir  # Used to load and save the model parameters.
         self.filename = filename
         self.output_activation = activation
+        self.optimizer = optimizer
         self.loss = loss
+        self.beta = beta
 
         if len(layers_dims) > 0:
             self.output_shape = layers_dims[-1]
@@ -335,7 +362,9 @@ class NeuralNetwork:
             grads = L_model_backward(AL, Y, caches, self.loss, self.output_activation)
 
             # Update parameters.
-            self.parameters = update_parameters(parameters, grads, self.learning_rate)
+            self.parameters, self.momentum = update_parameters(parameters, grads, self.momentum, self.learning_rate,
+                                                               self.optimizer, i,
+                                                               self.beta)
 
             cost_rounded = np.squeeze(np.round(cost, 3))
 

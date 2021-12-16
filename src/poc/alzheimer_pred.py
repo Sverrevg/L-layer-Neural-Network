@@ -6,6 +6,8 @@ import numpy as np
 from imblearn.over_sampling import SMOTE
 from random import randint
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
 
 from neural_net import NeuralNetwork
 from network_options import Activations, Loss
@@ -89,5 +91,21 @@ nn = NeuralNetwork(learning_rate=0.0075, layers_dims=layers_dims, activation=Act
 nn.load_model()
 
 # Test model:
-predictions = nn.test(X_test, y_test)
-print(predictions)
+nn.test(X_test, y_test)
+
+predictions = nn.predict(X_test)
+
+# Plot the confusion matrix to understand the classification in detail
+pred_ls = np.argmax(predictions, axis=1)
+test_ls = np.argmax(y_test, axis=1)
+
+matrix = confusion_matrix(test_ls, pred_ls)
+
+plt.figure(figsize=(10, 8), dpi=80, facecolor='w', edgecolor='k')
+
+ax = sns.heatmap(matrix, cmap='Blues', annot=True, fmt='d', xticklabels=classes, yticklabels=classes)
+
+plt.title('Alzheimer\'s disease diagnosis')
+plt.xlabel('Prediction')
+plt.ylabel('Actual')
+plt.show(ax)

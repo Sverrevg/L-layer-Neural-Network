@@ -57,9 +57,9 @@ print("X_train's shape: " + str(X_train.shape))
 print("X_test's shape: " + str(X_test.shape) + "\n")
 
 # Constants
-layers_dims = [12288, 15, 9, 5, 3, 1]  # 5-layer model
+layers_dims = [12288, 9, 5, 3, 1]  # 5-layer model
 
-nn = NeuralNetwork(layers_dims, learning_rate=0.005, num_iterations=1800, activation=Activations.SIGMOID.value)
+nn = NeuralNetwork(layers_dims, learning_rate=0.005, num_iterations=1800, activation=Activations.SIGMOID.value, optimizer='stochastic-momentum')
 
 nn.fit(X_train, y_train)
 
