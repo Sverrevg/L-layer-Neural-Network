@@ -138,11 +138,11 @@ def compute_cost(AL, Y, loss):
     N = AL.shape[1]
 
     # Cross entropy for binary classification. Different formula:
-    if loss == Loss.BINARY:
+    if loss == Loss.BINARY.value:
         # Compute loss from aL and y.
         cost = (1. / m) * (-np.dot(Y, np.log(AL).T) - np.dot(1 - Y, np.log(1 - AL).T))
 
-    elif loss == Loss.CATEGORICAL:
+    elif loss == Loss.CATEGORICAL.value:
         # Categorical cross-entropy
         cost = - np.sum(np.multiply(Y, np.log(AL)))
         cost = cost / m
