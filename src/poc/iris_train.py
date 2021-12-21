@@ -5,7 +5,7 @@ import numpy as np
 from sklearn.preprocessing import OneHotEncoder
 
 from neural_net import NeuralNetwork
-from network_options import Activation, Loss
+from network_options import *
 
 """Import data"""
 
@@ -58,7 +58,7 @@ input_dim = X_train.shape[0]
 output_dim = df['class'].nunique()
 layers_dims = [input_dim, 8, output_dim]  # 4-layer model
 
-nn = NeuralNetwork(layers_dims, num_iterations=1500, activation=Activation.SIGMOID.value, loss=Loss.CATEGORICAL.value)
+nn = NeuralNetwork(layers_dims, num_iterations=1500, activation=Activation.SIGMOID.value, loss=Loss.CATEGORICAL.value, optimizer=Optimizer.SGDM)
 
 nn.fit(X_train, y_train)
 

@@ -47,7 +47,7 @@ def linear_forward(A, W, b):
 
     Z = W.dot(A) + b
 
-    assert (Z.shape == (W.shape[0], A.shape[1]))
+    # assert (Z.shape == (W.shape[0], A.shape[1]))
     cache = (A, W, b)
 
     return Z, cache
@@ -300,8 +300,8 @@ def update_parameters(parameters, grads, momentum, learning_rate, optimizer, ite
 
 
 class NeuralNetwork:
-    def __init__(self, layers_dims=[], learning_rate=0.0075, num_iterations=3000, activation=Activation.SIGMOID,
-                 loss=Loss.BINARY,
+    def __init__(self, layers_dims=[], learning_rate=0.0075, num_iterations=3000, activation=Activation.SIGMOID.value,
+                 loss=Loss.BINARY.value,
                  optimizer=Optimizer.SGDM,
                  print_cost=True,
                  beta=0.5,

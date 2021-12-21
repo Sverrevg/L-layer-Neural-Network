@@ -3,7 +3,7 @@ import h5py
 import matplotlib.pyplot as plt
 
 from neural_net import NeuralNetwork
-from network_options import Activation, Loss
+from network_options import *
 
 
 def load_data():
@@ -59,7 +59,8 @@ print("X_test's shape: " + str(X_test.shape) + "\n")
 # Constants
 layers_dims = [12288, 9, 5, 3, 1]  # 5-layer model
 
-nn = NeuralNetwork(layers_dims, learning_rate=0.005, num_iterations=1800, activation=Activation.SIGMOID.value)
+nn = NeuralNetwork(layers_dims, learning_rate=0.005, num_iterations=1800, activation=Activation.SIGMOID.value,
+                   optimizer=Optimizer.SGDM)
 
 nn.fit(X_train, y_train)
 
