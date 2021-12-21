@@ -108,4 +108,4 @@ ax = sns.heatmap(matrix, cmap='Blues', annot=True, fmt='d', xticklabels=classes,
 plt.title('Alzheimer\'s disease diagnosis')
 plt.xlabel('Prediction')
 plt.ylabel('Actual')
-plt.show(ax)
+plt.show()
