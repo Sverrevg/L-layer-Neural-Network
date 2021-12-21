@@ -389,7 +389,7 @@ class NeuralNetwork:
 
         predictions, caches = L_model_forward(X, self.parameters, self.output_activation, self.output_shape)
 
-        if self.loss == Loss.BINARY:
+        if self.loss == Loss.BINARY.value:
             for i in range(m):
                 if predictions[0, i] > 0.5:
                     p[0, i] = 1
