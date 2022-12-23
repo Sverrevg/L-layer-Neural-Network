@@ -5,56 +5,59 @@ Source: Coursera DeepLearning course.
 """
 
 
-def sigmoid(Z):
+def sigmoid(input_data: np.array) -> tuple[[], []]:
     """
-    Implements the sigmoid activation in numpy
+    Runs the sigmoid activation on an input (array).
 
     Arguments:
-    Z -- numpy array of any shape
+    input-data -- numpy array of any shape
 
     Returns:
-    A -- output of sigmoid(z), same shape as Z
-    cache -- returns Z as well, useful during backpropagation
+    output -- output of sigmoid(z), same shape as input data.
+    cache -- stores input, useful during backpropagation.
     """
-    A = 1 / (1 + np.exp(-Z))
-    cache = Z
+    output = 1 / (1 + np.exp(-input_data))
+    cache = input_data
 
-    return A, cache
+    return output, cache
 
 
-def relu(Z):
+def relu(input_data):
     """
-    Implement the RELU function.
+    Apply ReLU activation on input data.
 
     Arguments:
-    Z -- Output of the linear layer, of any shape
+    input_data -- array of all values from last layer.
 
     Returns:
-    A -- Post-activation parameter, of the same shape as Z
-    cache -- a python dictionary containing "A" ; stored for computing the backward pass efficiently
+    output -- Post-activation parameter, of the same shape as the input data.
+    cache -- a python dictionary containing the input data; stored for computing the backward pass efficiently.
     """
-    A = np.maximum(0, Z)
+    output = np.maximum(0, input_data)
 
-    assert (A.shape == Z.shape)
+    assert output.shape == input_data.shape
 
-    cache = Z
-    return A, cache
+    cache = input_data
+    return output, cache
 
 
-def softmax(Z):
+def softmax(input_data):
     """"
-    Implement softmax function for multiclass classification.
+    Apply softmax activation to input data, for multiclass classification.
 
     Arguments:
-    z -- single value from last layer
-    Z -- array of all values from last layer
+    input_data -- array of all values from last layer.
+    
+    Returns:
+    output -- Softmax values of the input data.
+    cache -- the input data; stored for computing the backward pass efficiently.
     """
-    """Compute the softmax of vector x in a numerically stable way."""
-    shift_z = Z - np.max(Z)
-    A = np.exp(shift_z)
-    cache = Z
+    shift_z = input_data - np.max(input_data)  # Shifted value from last layer.
+    exponent = np.exp(shift_z)  # Calculate exponent of z value.
+    output = exponent / np.sum(exponent)
+    cache = input_data
 
-    return A / np.sum(A), cache
+    return output, cache
 
 
 def relu_backward(dA, cache):

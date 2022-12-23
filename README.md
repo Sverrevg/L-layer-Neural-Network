@@ -15,8 +15,8 @@ Verify pip installation by running the following command:
 ``pip -v``
 
 ## Installation
-Install NumPy with pip first:
+Install all required packages with pip first:
 
-``pip install numpy``
+``pip install requirements.txt``
 
 You are now ready to run the project.

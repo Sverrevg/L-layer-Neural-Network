@@ -1,9 +1,11 @@
 import numpy as np
-import math_operations
 import time
 from pathlib import Path
 
-from network_options import *
+from src import math_operations
+from src.network_operations.activation import Activation
+from src.network_operations.loss import Loss
+from src.network_operations.optimizer import Optimizer
 
 
 def initialize_parameters_deep(layer_dims):
@@ -19,14 +21,15 @@ def initialize_parameters_deep(layer_dims):
 
     np.random.seed(1)
     parameters = {}
-    L = len(layer_dims)  # number of layers in the network
+    layer_count = len(layer_dims)  # number of layers in the network
 
-    for l in range(1, L):
-        parameters[f'W{l}'] = np.random.randn(layer_dims[l], layer_dims[l - 1]) / np.sqrt(layer_dims[l - 1])
-        parameters[f'b{l}'] = np.zeros((layer_dims[l], 1))
+    for layer in range(1, layer_count):
+        parameters[f'W{layer}'] = np.random.randn(layer_dims[layer], layer_dims[layer - 1]) / np.sqrt(
+            layer_dims[layer - 1])
+        parameters[f'b{layer}'] = np.zeros((layer_dims[layer], 1))
 
-        assert (parameters[f'W{l}'].shape == (layer_dims[l], layer_dims[l - 1]))
-        assert (parameters[f'b{l}'].shape == (layer_dims[l], 1))
+        assert (parameters[f'W{layer}'].shape == (layer_dims[layer], layer_dims[layer - 1]))
+        assert (parameters[f'b{layer}'].shape == (layer_dims[layer], 1))
 
     return parameters
 
@@ -88,7 +91,7 @@ def linear_activation_forward(A_prev, W, b, activation):
     return A, cache
 
 
-def L_model_forward(X, parameters, activation, output_shape):
+def L_model_forward(input_data, parameters, activation, output_shape):
     """
     Implement forward propagation for the [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID computation
 
@@ -104,22 +107,22 @@ def L_model_forward(X, parameters, activation, output_shape):
     """
 
     caches = []
-    A = X
-    L = len(parameters) // 2  # number of layers in the neural network
+    layer_count = len(parameters) // 2  # number of layers in the neural network
 
     # Implement [LINEAR -> RELU]*(L-1). Add "cache" to the "caches" list.
-    for l in range(1, L):
-        A_prev = A
-        A, cache = linear_activation_forward(A_prev, parameters[f'W{l}'], parameters[f'b{l}'],
-                                             activation="relu")
+    for layer in range(1, layer_count):
+        a_prev = input_data
+        input_data, cache = linear_activation_forward(a_prev, parameters[f'W{layer}'], parameters[f'b{layer}'],
+                                                      activation="relu")
         caches.append(cache)
 
     # Implement LINEAR -> SIGMOID or SOFTMAX. Add "cache" to the "caches" list.
-    AL, cache = linear_activation_forward(A, parameters[f'W{L}'], parameters[f'b{L}'], activation=activation)
+    last_activation_value, cache = linear_activation_forward(input_data, parameters[f'W{layer_count}'],
+                                                             parameters[f'b{layer_count}'], activation=activation)
     caches.append(cache)
-    assert (AL.shape == (output_shape, X.shape[1]))
+    assert (last_activation_value.shape == (output_shape, input_data.shape[1]))
 
-    return AL, caches
+    return last_activation_value, caches
 
 
 def compute_cost(AL, Y, loss):
@@ -136,6 +139,7 @@ def compute_cost(AL, Y, loss):
     # Amount of images
     m = Y.shape[1]
     N = AL.shape[1]
+    cost = 0
 
     # Cross entropy for binary classification. Different formula:
     if loss == Loss.BINARY.value:
@@ -241,14 +245,14 @@ def L_model_backward(AL, Y, caches, loss, activation):
     grads[f'dA{L - 1}'], grads[f'dW{L}'], grads[f'db{L}'] = linear_activation_backward(dAL, current_cache,
                                                                                        activation=activation)
 
-    for l in reversed(range(L - 1)):
+    for layer in reversed(range(L - 1)):
         # lth layer: (RELU -> LINEAR) gradients.
-        current_cache = caches[l]
-        dA_prev_temp, dW_temp, db_temp = linear_activation_backward(grads[f'dA{l + 1}'], current_cache,
+        current_cache = caches[layer]
+        dA_prev_temp, dW_temp, db_temp = linear_activation_backward(grads[f'dA{layer + 1}'], current_cache,
                                                                     activation="relu")
-        grads[f'dA{l}'] = dA_prev_temp
-        grads[f'dW{l + 1}'] = dW_temp
-        grads[f'db{l + 1}'] = db_temp
+        grads[f'dA{layer}'] = dA_prev_temp
+        grads[f'dW{layer + 1}'] = dW_temp
+        grads[f'db{layer + 1}'] = db_temp
 
     return grads
 
@@ -268,33 +272,33 @@ def update_parameters(parameters, grads, momentum, learning_rate, optimizer, ite
                   parameters["b" + str(l)] = ...
     """
 
-    L = len(parameters) // 2  # number of layers in the neural network.
+    layer_count = len(parameters) // 2  # number of layers in the neural network.
 
     if optimizer == Optimizer.SGD:
         # Update rule for each parameter. Use a for loop.
-        for l in range(L):
-            parameters[f'W{l + 1}'] = parameters[f'W{l + 1}'] - learning_rate * grads[f'dW{l + 1}']
-            parameters[f'b{l + 1}'] = parameters[f'b{l + 1}'] - learning_rate * grads[f'db{l + 1}']
+        for layer in range(layer_count):
+            parameters[f'W{layer + 1}'] = parameters[f'W{layer + 1}'] - learning_rate * grads[f'dW{layer + 1}']
+            parameters[f'b{layer + 1}'] = parameters[f'b{layer + 1}'] - learning_rate * grads[f'db{layer + 1}']
 
     # Calculate v
     if optimizer == Optimizer.SGDM:
         # At first iteration vw and vb equal gradients for each layer:
-        for l in range(L):
-            l += 1
+        for layer in range(layer_count):
+            layer += 1
 
             if iteration == 0:
                 # Should only save one instance:
-                momentum[f'vw{l}'] = grads[f'dW{l}']
-                momentum[f'vb{l}'] = grads[f'db{l}']
+                momentum[f'vw{layer}'] = grads[f'dW{layer}']
+                momentum[f'vb{layer}'] = grads[f'db{layer}']
 
             elif iteration > 0:
                 # Calculate new momentum with values from previous iteration:
-                momentum[f'vw{l}'] = beta * momentum[f'vw{l}'] + grads[f'dW{l}']
-                momentum[f'vb{l}'] = beta * momentum[f'vb{l}'] + grads[f'db{l}']
+                momentum[f'vw{layer}'] = beta * momentum[f'vw{layer}'] + grads[f'dW{layer}']
+                momentum[f'vb{layer}'] = beta * momentum[f'vb{layer}'] + grads[f'db{layer}']
 
             # Update each parameter:
-            parameters[f'W{l}'] = parameters[f'W{l}'] - learning_rate * momentum[f'vw{l}']
-            parameters[f'b{l}'] = parameters[f'b{l}'] - learning_rate * momentum[f'vb{l}']
+            parameters[f'W{layer}'] = parameters[f'W{layer}'] - learning_rate * momentum[f'vw{layer}']
+            parameters[f'b{layer}'] = parameters[f'b{layer}'] - learning_rate * momentum[f'vb{layer}']
 
     return parameters, momentum
 
