@@ -12,12 +12,12 @@ from src.network_operations.optimizer import Optimizer
 def initialize_parameters_deep(layer_dims):
     """
     Arguments:
-    layer_dims -- python array (list) containing the dimensions of each layer in our network
+    layer_dims -- python array (list) containing the dimensions of each layer in our network.
 
     Returns:
     parameters -- python dictionary containing your parameters "W1", "b1", ..., "WL", "bL":
-                    Wl -- weight matrix of shape (layer_dims[l], layer_dims[l-1])
-                    bl -- bias vector of shape (layer_dims[l], 1)
+        Wl -- weight matrix of shape (layer_dims[l], layer_dims[l-1])
+        bl -- bias vector of shape (layer_dims[l], 1)
     """
 
     np.random.seed(1)
@@ -35,61 +35,65 @@ def initialize_parameters_deep(layer_dims):
     return parameters
 
 
-def linear_forward(A, W, b):
+def linear_forward(activations, weights, bias):
     """
     Implement the linear part of a layer's forward propagation.
 
     Arguments:
-    A -- activations from previous layer (or input data): (size of previous layer, number of examples)
-    W -- weights matrix: numpy array of shape (size of current layer, size of previous layer)
-    b -- bias vector, numpy array of shape (size of the current layer, 1)
+    activations -- activations from previous layer (or input data): (size of previous layer, number of examples).
+    weights -- weights matrix: numpy array of shape (size of current layer, size of previous layer).
+    bias -- bias vector, numpy array of shape (size of the current layer, 1).
 
     Returns:
-    Z -- the input of the activation function, also called pre-activation parameter
-    cache -- a python dictionary containing "A", "W" and "b" ; stored for computing the backward pass efficiently
+    activation_input -- the input of the activation function, also called pre-activation parameter.
+    cache -- a python dictionary containing "A", "W" and "b" ; stored for computing the backward pass efficiently.
     """
 
-    Z = W.dot(A) + b
+    activation_input = weights.dot(activations) + bias
 
     # assert (Z.shape == (W.shape[0], A.shape[1]))
-    cache = (A, W, b)
+    cache = (activations, weights, bias)
 
-    return Z, cache
+    return activation_input, cache
 
 
-def linear_activation_forward(A_prev, W, b, activation):
+def linear_activation_forward(activations_prev, weights, bias, activation):
     """
     Implement the forward propagation for the LINEAR->ACTIVATION layer
 
     Arguments:
-    A_prev -- activations from previous layer (or input data): (size of previous layer, number of examples)
-    W -- weights matrix: numpy array of shape (size of current layer, size of previous layer)
-    b -- bias vector, numpy array of shape (size of the current layer, 1)
-    activation -- the activation to be used in this layer, stored as a text string: "sigmoid" or "relu"
+    activations_prev -- activations from previous layer (or input data): (size of previous layer, number of examples).
+    weights -- weights matrix: numpy array of shape (size of current layer, size of previous layer).
+    b -- bias vector, numpy array of shape (size of the current layer, 1).
+    activation -- the activation to be used in this layer, stored as a text string: "sigmoid" or "relu".
 
     Returns:
-    A -- the output of the activation function, also called the post-activation value
-    cache -- a python dictionary containing "linear_cache" and "activation_cache";
-             stored for computing the backward pass efficiently
+    A -- the output of the activation function, also called the post-activation value.
+    cache -- a python dictionary containing "linear_cache" and "activation_cache"; stored for computing the backward
+    pass efficiently.
     """
+    outputs = np.array(0)
+    linear_cache = np.array(0)
+    activation_cache = np.array(0)
+
     if activation == Activation.RELU.value:
         # Inputs: "A_prev, W, b". Outputs: "A, activation_cache".
-        Z, linear_cache = linear_forward(A_prev, W, b)
-        A, activation_cache = math_operations.relu(Z)
+        inputs, linear_cache = linear_forward(activations_prev, weights, bias)
+        outputs, activation_cache = math_operations.relu(inputs)
 
     elif activation == Activation.SIGMOID.value:
         # Inputs: "A_prev, W, b". Outputs: "A, activation_cache".
-        Z, linear_cache = linear_forward(A_prev, W, b)
-        A, activation_cache = math_operations.sigmoid(Z)
+        inputs, linear_cache = linear_forward(activations_prev, weights, bias)
+        outputs, activation_cache = math_operations.sigmoid(inputs)
 
     elif activation == Activation.SOFTMAX.value:
-        Z, linear_cache = linear_forward(A_prev, W, b)
-        A, activation_cache = math_operations.softmax(Z)
+        inputs, linear_cache = linear_forward(activations_prev, weights, bias)
+        outputs, activation_cache = math_operations.softmax(inputs)
 
-    assert A.shape == (W.shape[0], A_prev.shape[1])
+    assert outputs.shape == (weights.shape[0], activations_prev.shape[1])
     cache = (linear_cache, activation_cache)
 
-    return A, cache
+    return outputs, cache
 
 
 def l_model_forward(input_data, parameters, activation, output_shape):
