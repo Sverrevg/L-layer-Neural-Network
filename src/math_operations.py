@@ -65,7 +65,7 @@ def relu_backward(gradient: np.array, cache: np.array) -> np.array:
 
     Arguments:
     gradient -- post-activation gradient, of any shape.
-    cache -- values we stored for computing backward propagation efficiently.
+    cache -- values stored for computing backward propagation efficiently.
 
     Returns:
     cost_gradient -- Gradient of the cost with respect to Z.
@@ -79,45 +79,39 @@ def relu_backward(gradient: np.array, cache: np.array) -> np.array:
     return cost_gradient
 
 
-def sigmoid_backward(dA, cache):
+def sigmoid_backward(gradient: np.array, cache: np.array) -> np.array:
     """
     Implement the backward propagation for a single SIGMOID unit.
 
     Arguments:
-    dA -- post-activation gradient, of any shape
-    cache -- 'Z' where we store for computing backward propagation efficiently
+    gradient -- post-activation gradient, of any shape.
+    cache -- values stored for computing backward propagation efficiently.
 
     Returns:
-    dZ -- Gradient of the cost with respect to Z
+    cost_gradient -- Gradient of the cost with respect to Z.
     """
-    Z = cache
+    sigmoid_val = 1 / (1 + np.exp(-cache))
+    cost_gradient = gradient * sigmoid_val * (1 - sigmoid_val)
 
-    s = 1 / (1 + np.exp(-Z))
-    dZ = dA * s * (1 - s)
-
-    assert (dZ.shape == Z.shape)
-
-    return dZ
+    assert cost_gradient.shape == cache.shape
+    return cost_gradient
 
 
-def softmax_backward(dA, cache):
+def softmax_backward(gradient: np.array, cache: np.array) -> np.array:
     """
     Implement the backward propagation for a softmax layer.
 
     Arguments:
-    dA -- post-activation gradient, of any shape
-    cache -- 'Z' where we store for computing backward propagation efficiently
+    gradient -- post-activation gradient, of any shape.
+    cache -- values stored for computing backward propagation efficiently.
 
     Returns:
-    dZ -- Gradient of the cost with respect to Z
+    cost_gradient -- Gradient of the cost with respect to Z.
 
     Source: https://e2eml.school/softmax.html
     """
-    Z = cache
+    sigmoid_val = np.exp(cache) / (np.sum(np.exp(cache)))
+    cost_gradient = gradient * sigmoid_val * (1 - sigmoid_val)
 
-    s = np.exp(Z) / (np.sum(np.exp(Z)))
-    dZ = dA * s * (1 - s)
-
-    assert (dZ.shape == Z.shape)
-
-    return dZ
+    assert cost_gradient.shape == cache.shape
+    return cost_gradient

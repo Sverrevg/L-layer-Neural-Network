@@ -1,6 +1,7 @@
-import numpy as np
 import time
 from pathlib import Path
+
+import numpy as np
 
 from src import math_operations
 from src.network_operations.activation import Activation
@@ -28,8 +29,8 @@ def initialize_parameters_deep(layer_dims):
             layer_dims[layer - 1])
         parameters[f'b{layer}'] = np.zeros((layer_dims[layer], 1))
 
-        assert (parameters[f'W{layer}'].shape == (layer_dims[layer], layer_dims[layer - 1]))
-        assert (parameters[f'b{layer}'].shape == (layer_dims[layer], 1))
+        assert parameters[f'W{layer}'].shape == (layer_dims[layer], layer_dims[layer - 1])
+        assert parameters[f'b{layer}'].shape == (layer_dims[layer], 1)
 
     return parameters
 
@@ -85,13 +86,13 @@ def linear_activation_forward(A_prev, W, b, activation):
         Z, linear_cache = linear_forward(A_prev, W, b)
         A, activation_cache = math_operations.softmax(Z)
 
-    assert (A.shape == (W.shape[0], A_prev.shape[1]))
+    assert A.shape == (W.shape[0], A_prev.shape[1])
     cache = (linear_cache, activation_cache)
 
     return A, cache
 
 
-def L_model_forward(input_data, parameters, activation, output_shape):
+def l_model_forward(input_data, parameters, activation, output_shape):
     """
     Implement forward propagation for the [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID computation
 
@@ -120,35 +121,36 @@ def L_model_forward(input_data, parameters, activation, output_shape):
     last_activation_value, cache = linear_activation_forward(input_data, parameters[f'W{layer_count}'],
                                                              parameters[f'b{layer_count}'], activation=activation)
     caches.append(cache)
-    assert (last_activation_value.shape == (output_shape, input_data.shape[1]))
+    assert last_activation_value.shape == (output_shape, input_data.shape[1])
 
     return last_activation_value, caches
 
 
-def compute_cost(AL, Y, loss):
+def compute_cost(probability_vector, label, loss):
     """
     Implement the cost function defined by equation (7).
 
     Arguments:
-    AL -- probability vector corresponding to your label predictions, shape (1, number of examples)
-    Y -- true "label" vector (for example: containing 0 if non-cat, 1 if cat), shape (1, number of examples)
+    probability_vector -- probability vector corresponding to your label predictions, shape (1, number of examples)
+    label -- true "label" vector (for example: containing 0 if non-cat, 1 if cat), shape (1, number of examples)
 
     Returns:
     cost -- cross-entropy cost
     """
     # Amount of images
-    m = Y.shape[1]
-    N = AL.shape[1]
+    m = label.shape[1]
+    probability_vector.shape[1]
     cost = 0
 
     # Cross entropy for binary classification. Different formula:
     if loss == Loss.BINARY.value:
         # Compute loss from aL and y.
-        cost = (1. / m) * (-np.dot(Y, np.log(AL).T) - np.dot(1 - Y, np.log(1 - AL).T))
+        cost = (1. / m) * (
+                -np.dot(label, np.log(probability_vector).T) - np.dot(1 - label, np.log(1 - probability_vector).T))
 
     elif loss == Loss.CATEGORICAL.value:
         # Categorical cross-entropy
-        cost = - np.sum(np.multiply(Y, np.log(AL)))
+        cost = - np.sum(np.multiply(label, np.log(probability_vector)))
         cost = cost / m
 
     cost = np.squeeze(cost)  # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
@@ -176,9 +178,9 @@ def linear_backward(dZ, cache):
     db = 1. / m * np.sum(dZ, axis=1, keepdims=True)
     dA_prev = np.dot(W.T, dZ)
 
-    assert (dA_prev.shape == A_prev.shape)
-    assert (dW.shape == W.shape)
-    assert (db.shape == b.shape)
+    assert dA_prev.shape == A_prev.shape
+    assert dW.shape == W.shape
+    assert db.shape == b.shape
 
     return dA_prev, dW, db
 
@@ -214,13 +216,13 @@ def linear_activation_backward(dA, cache, activation):
     return dA_prev, dW, db
 
 
-def L_model_backward(AL, Y, caches, loss, activation):
+def l_model_backward(probability_vector, label, caches, loss, activation):
     """
     Implement the backward propagation for the [LINEAR->RELU] * (L-1) -> LINEAR -> SIGMOID group
 
     Arguments:
-    AL -- probability vector, output of the forward propagation (L_model_forward())
-    Y -- true "label" vector (containing 0 if non-cat, 1 if cat)
+    probability_vector -- probability vector, output of the forward propagation (L_model_forward())
+    label -- true "label" vector (containing 0 if non-cat, 1 if cat)
     caches -- list of caches containing:
                 every cache of linear_activation_forward() with "relu" (there are (L-1) or them, indexes from 0 to L-2)
                 the cache of linear_activation_forward() with "sigmoid" (there is one, index L-1)
@@ -233,12 +235,12 @@ def L_model_backward(AL, Y, caches, loss, activation):
     """
     grads = {}
     L = len(caches)  # the number of layers
-    m = AL.shape[1]
+    probability_vector.shape[1]
     if loss == Loss.BINARY:
-        Y = Y.reshape(AL.shape)  # after this line, Y is the same shape as AL
+        label = label.reshape(probability_vector.shape)  # after this line, Y is the same shape as AL
 
     # Initializing the backpropagation
-    dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
+    dAL = - (np.divide(label, probability_vector) - np.divide(1 - label, 1 - probability_vector))
 
     # Lth layer (SIGMOID/SOFTMAX -> LINEAR) gradients.
     current_cache = caches[L - 1]
@@ -337,7 +339,7 @@ class NeuralNetwork:
 
     def fit(self, X, Y):
         """
-        Implements a L-layer neural network: [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID.
+        Implements an L-layer neural network: [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID.
 
         Arguments:
         X -- data, numpy array of shape (num_px * num_px * 3, number of examples)
@@ -357,13 +359,13 @@ class NeuralNetwork:
         # Loop (gradient descent)
         for i in range(0, self.num_iterations):
             # Forward propagation: [LINEAR -> RELU]*(L-1) -> LINEAR -> SIGMOID.
-            AL, caches = L_model_forward(X, parameters, self.output_activation, self.output_shape)
+            probability_vector, caches = l_model_forward(X, parameters, self.output_activation, self.output_shape)
 
             # Compute cost.
-            cost = compute_cost(AL, Y, self.loss)
+            cost = compute_cost(probability_vector, Y, self.loss)
 
             # Backward propagation.
-            grads = L_model_backward(AL, Y, caches, self.loss, self.output_activation)
+            grads = l_model_backward(probability_vector, Y, caches, self.loss, self.output_activation)
 
             # Update parameters.
             self.parameters, self.momentum = update_parameters(parameters, grads, self.momentum, self.learning_rate,
@@ -391,7 +393,7 @@ class NeuralNetwork:
         m = X.shape[1]
         p = np.zeros((1, m))
 
-        predictions, caches = L_model_forward(X, self.parameters, self.output_activation, self.output_shape)
+        predictions, caches = l_model_forward(X, self.parameters, self.output_activation, self.output_shape)
 
         if self.loss == Loss.BINARY.value:
             for i in range(m):
@@ -422,8 +424,8 @@ class NeuralNetwork:
             print(f'Test accuracy: {accuracy}')
 
     def predict(self, x):
-        AL, caches = L_model_forward(x, self.parameters, self.output_activation, self.output_shape)
-        return AL
+        probability_vector, _ = l_model_forward(x, self.parameters, self.output_activation, self.output_shape)
+        return probability_vector
 
     def save_model(self):
         print("Saving parameters to", "'" + self.save_dir + self.filename + "'...")
@@ -442,4 +444,4 @@ class NeuralNetwork:
             self.layers_dims = np.load(self.save_dir + "layers_dims.npy")
             self.output_shape = self.layers_dims[-1]
         except ValueError:
-            raise Exception("Parameters cannot be empty.")
+            raise ValueError("Parameters cannot be empty.")
