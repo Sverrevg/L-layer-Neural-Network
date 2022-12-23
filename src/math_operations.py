@@ -16,13 +16,13 @@ def sigmoid(input_data: np.array) -> tuple[[], []]:
     output -- output of sigmoid(z), same shape as input data.
     cache -- stores input, useful during backpropagation.
     """
-    output = 1 / (1 + np.exp(-input_data))
     cache = input_data
+    output = 1 / (1 + np.exp(-input_data))
 
     return output, cache
 
 
-def relu(input_data):
+def relu(input_data: np.array) -> tuple[[], []]:
     """
     Apply ReLU activation on input data.
 
@@ -33,53 +33,50 @@ def relu(input_data):
     output -- Post-activation parameter, of the same shape as the input data.
     cache -- a python dictionary containing the input data; stored for computing the backward pass efficiently.
     """
+    cache = input_data
     output = np.maximum(0, input_data)
 
     assert output.shape == input_data.shape
-
-    cache = input_data
     return output, cache
 
 
-def softmax(input_data):
-    """"
+def softmax(input_data: np.array) -> tuple[[], []]:
+    """
     Apply softmax activation to input data, for multiclass classification.
 
     Arguments:
     input_data -- array of all values from last layer.
-    
+
     Returns:
     output -- Softmax values of the input data.
     cache -- the input data; stored for computing the backward pass efficiently.
     """
+    cache = input_data
     shift_z = input_data - np.max(input_data)  # Shifted value from last layer.
     exponent = np.exp(shift_z)  # Calculate exponent of z value.
     output = exponent / np.sum(exponent)
-    cache = input_data
 
     return output, cache
 
 
-def relu_backward(dA, cache):
+def relu_backward(gradient: np.array, cache: np.array) -> np.array:
     """
     Implement the backward propagation for a single RELU unit.
 
     Arguments:
-    dA -- post-activation gradient, of any shape
-    cache -- 'Z' where we store for computing backward propagation efficiently
+    gradient -- post-activation gradient, of any shape.
+    cache -- values we stored for computing backward propagation efficiently.
 
     Returns:
-    dZ -- Gradient of the cost with respect to Z
+    cost_gradient -- Gradient of the cost with respect to Z.
     """
-    Z = cache
-    dZ = np.array(dA, copy=True)  # just converting dz to a correct object.
+    cost_gradient = np.array(gradient, copy=True)  # Just converting dz to a correct object.
 
-    # When z <= 0, you should set dz to 0 as well.
-    dZ[Z <= 0] = 0
+    # When cache <= 0, set cost_gradient to 0 as well.
+    cost_gradient[cache <= 0] = 0
 
-    assert (dZ.shape == Z.shape)
-
-    return dZ
+    assert cost_gradient.shape == cache.shape  # Ensure shapes match.
+    return cost_gradient
 
 
 def sigmoid_backward(dA, cache):
