@@ -1,22 +1,19 @@
 # Neural Network for Image Classification
-
-## Prerequisites
-First, make sure Python is installed and added to path. Run the following command in command prompt to verify:
-
-``python``
-
-You should see something like this:
-
-``Python 3.9.5 (tags/v3.9.5:0a7dcbd, May  3 2021, 17:27:52) [MSC v.1928 64 bit (AMD64)] on win32
-Type "help", "copyright", "credits" or "license" for more information.``
-
-Verify pip installation by running the following command:
-
-``pip -v``
+This project is an l-layer neural network created for the purpose of image classification (although it can also be 
+trained for other tasks). A small demo is included.
 
 ## Installation
-Install all required packages with pip first:
+
+Install the required packages with pip first:
 
 ``pip install requirements.txt``
 
-You are now ready to run the project.
+Then download this dataset should you like to run the demo: https://www.kaggle.com/datasets/muhammeddalkran/catvnoncat.
+Place the data in a folder in the root called `data`.
+
+## Running the demo
+
+Running the image-classification demo is straightforward:
+
+1. Open a terminal and paste the following `python demo_train.py`.
+2. Then, paste the following `python demo_predict.py`.
