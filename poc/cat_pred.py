@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 
-from src.neural_net import NeuralNetwork
+from neural_network.neural_network import NeuralNetwork
 
 nn = NeuralNetwork()
 

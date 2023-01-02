@@ -2,7 +2,7 @@ import subprocess
 
 _CHECK_ONLY = 'check' in COMMAND_LINE_TARGETS
 _CONTINUE = 'continue' in COMMAND_LINE_TARGETS
-_SUBJECT = 'src'
+_SUBJECT = 'neural_network'
 
 
 def _exec(cmd: str) -> None:

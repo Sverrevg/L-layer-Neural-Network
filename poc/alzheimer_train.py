@@ -7,9 +7,9 @@ from keras.preprocessing.image import ImageDataGenerator
 from sklearn.model_selection import train_test_split
 from random import randint
 
-from src.network_operations.activation import Activation
-from src.network_operations.loss import Loss
-from src.neural_net import NeuralNetwork
+from neural_network.network_operations.activation import Activation
+from neural_network.network_operations.loss import Loss
+from neural_network.neural_network import NeuralNetwork
 
 # Get directories
 base_dir = 'data/Alzheimer_s Dataset/'

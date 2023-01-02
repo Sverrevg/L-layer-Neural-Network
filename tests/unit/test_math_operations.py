@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from src.math_operations import sigmoid, relu, softmax
+from neural_network.math_operations import sigmoid, relu, softmax
 
 
 class TestMathOperations(TestCase):
