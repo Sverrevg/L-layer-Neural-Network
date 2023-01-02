@@ -1,10 +1,9 @@
 import time
-from ctypes import Union
 from pathlib import Path
 
 import numpy as np
 
-from neural_network.math_operations import ndarray
+from neural_network.math_operations import Array
 from neural_network.network_operations.activation import Activation
 from neural_network.network_operations.loss import Loss
 from neural_network.network_operations.network_operations import (
@@ -52,14 +51,14 @@ class NeuralNetwork:
         self.dims_filename: str = dims_filename
 
         # Network stores:
-        self.parameters: dict[str, ndarray] = {}  # Saves trained parameters within the model.
-        self.momentum: dict[str, ndarray] = {}  # Saves momenta within the model.
+        self.parameters: dict[str, Array] = {}  # Saves trained parameters within the model.
+        self.momentum: dict[str, Array] = {}  # Saves momenta within the model.
         self.costs: list[float] = []  # Saves cost within the model after training.
 
         if len(layers_dims) > 0:
             self.output_shape = layers_dims[-1]
 
-    def fit(self, input_data: ndarray, labels: ndarray) -> None:
+    def fit(self, input_data: Array, labels: Array) -> None:
         """
         Implements an L-layer neural network: [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID.
 
@@ -110,7 +109,7 @@ class NeuralNetwork:
         # Save costs to model:
         self.costs = costs
 
-    def test(self, input_data: ndarray, labels: ndarray) -> None:
+    def test(self, input_data: Array, labels: Array) -> None:
         input_shape = input_data.shape[1]
         predictions = np.zeros((1, input_shape))
 
@@ -144,7 +143,7 @@ class NeuralNetwork:
 
             print(f'Test accuracy: {accuracy}')
 
-    def predict(self, input_data: ndarray) -> ndarray:
+    def predict(self, input_data: Array) -> Array:
         probability_vector, _ = l_model_forward(input_data, self.parameters, self.activation, self.output_shape)
         return probability_vector
 

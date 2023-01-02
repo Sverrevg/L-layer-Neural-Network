@@ -3,13 +3,13 @@ import numpy as np
 from neural_network import math_operations
 from neural_network.helpers.activation_cache import ActivationCache
 from neural_network.helpers.forward_cache import ForwardCache
-from neural_network.math_operations import ndarray
+from neural_network.math_operations import Array
 from neural_network.network_operations.activation import Activation
 from neural_network.network_operations.loss import Loss
 from neural_network.network_operations.optimizer import Optimizer
 
 
-def initialize_parameters_deep(layer_dims: list[int]) -> dict[str, ndarray]:
+def initialize_parameters_deep(layer_dims: list[int]) -> dict[str, Array]:
     """
     Arguments:
     layer_dims -- python array (list) containing the dimensions of each layer in our network.
@@ -34,8 +34,8 @@ def initialize_parameters_deep(layer_dims: list[int]) -> dict[str, ndarray]:
     return parameters
 
 
-def linear_forward(activations: ndarray, weights: ndarray, bias: ndarray) -> \
-        tuple[ndarray, ForwardCache]:
+def linear_forward(activations: Array, weights: Array, bias: Array) -> \
+        tuple[Array, ForwardCache]:
     """
     Implement the linear part of a layer's forward propagation.
 
@@ -54,8 +54,8 @@ def linear_forward(activations: ndarray, weights: ndarray, bias: ndarray) -> \
     return activation_input, cache
 
 
-def linear_activation_forward(activations_prev: ndarray, weights: ndarray, bias: ndarray,
-                              activation: str) -> tuple[ndarray, ActivationCache]:
+def linear_activation_forward(activations_prev: Array, weights: Array, bias: Array,
+                              activation: str) -> tuple[Array, ActivationCache]:
     """
     Implement the forward propagation for the LINEAR->ACTIVATION layer
 
@@ -87,8 +87,8 @@ def linear_activation_forward(activations_prev: ndarray, weights: ndarray, bias:
     return outputs, ActivationCache(linear_cache, activation_cache)
 
 
-def l_model_forward(input_data: ndarray, parameters: dict[str, ndarray], activation: str, output_shape: int) -> \
-        tuple[ndarray, list[ActivationCache]]:
+def l_model_forward(input_data: Array, parameters: dict[str, Array], activation: str, output_shape: int) -> \
+        tuple[Array, list[ActivationCache]]:
     """
     Implement forward propagation for the [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID computation.
 
@@ -124,7 +124,7 @@ def l_model_forward(input_data: ndarray, parameters: dict[str, ndarray], activat
     return last_activation_value, caches
 
 
-def compute_cost(probability_vector: ndarray, label: ndarray, loss: str) -> ndarray:
+def compute_cost(probability_vector: Array, label: Array, loss: str) -> Array:
     """
     Implement the cost function defined by equation (7).
 
@@ -153,7 +153,7 @@ def compute_cost(probability_vector: ndarray, label: ndarray, loss: str) -> ndar
     return np.squeeze(cost)  # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
 
 
-def linear_backward(cost_gradient: ndarray, cache: ForwardCache) -> tuple[ndarray, ndarray, ndarray]:
+def linear_backward(cost_gradient: Array, cache: ForwardCache) -> tuple[Array, Array, Array]:
     """
     Implement the linear portion of backward propagation for a single layer (layer l).
 
@@ -180,8 +180,8 @@ def linear_backward(cost_gradient: ndarray, cache: ForwardCache) -> tuple[ndarra
     return activation_gradient, weight_gradient, bias_gradient
 
 
-def linear_activation_backward(post_activation_gradient: ndarray, cache: ActivationCache, activation: str) -> \
-        tuple[ndarray, ndarray, ndarray]:
+def linear_activation_backward(post_activation_gradient: Array, cache: ActivationCache, activation: str) -> \
+        tuple[Array, Array, Array]:
     """
     Implement the backward propagation for the LINEAR->ACTIVATION layer.
 
@@ -212,8 +212,8 @@ def linear_activation_backward(post_activation_gradient: ndarray, cache: Activat
     return activation_gradient, weight_gradient, bias_gradient
 
 
-def l_model_backward(probability_vector: ndarray, label: ndarray, caches: list[ActivationCache], loss: str,
-                     activation: str) -> dict[str, ndarray]:
+def l_model_backward(probability_vector: Array, label: Array, caches: list[ActivationCache], loss: str,
+                     activation: str) -> dict[str, Array]:
     """
     Implement the backward propagation for the [LINEAR->RELU] * (L-1) -> LINEAR -> SIGMOID group.
 
@@ -257,9 +257,9 @@ def l_model_backward(probability_vector: ndarray, label: ndarray, caches: list[A
     return grads
 
 
-def update_parameters(parameters: dict[str, ndarray], grads: dict[str, ndarray], momentum: dict[str, ndarray],
+def update_parameters(parameters: dict[str, Array], grads: dict[str, Array], momentum: dict[str, Array],
                       learning_rate: float, optimizer: str, iteration: int, beta: float) -> \
-        tuple[dict[str, ndarray], dict[str, ndarray]]:
+        tuple[dict[str, Array], dict[str, Array]]:
     """
     Update parameters using gradient descent
 

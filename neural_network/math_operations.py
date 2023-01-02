@@ -7,10 +7,10 @@ Functions based on: Coursera DeepLearning course.
 """
 
 # Create custom type hint using numpy
-ndarray = np.ndarray[Any, np.dtype[np.float64]]
+Array = np.ndarray[Any, np.dtype[np.float64]]
 
 
-def sigmoid(input_data: ndarray) -> tuple[ndarray, ndarray]:
+def sigmoid(input_data: Array) -> tuple[Array, Array]:
     """
     Runs the sigmoid activation on an input (array).
 
@@ -27,7 +27,7 @@ def sigmoid(input_data: ndarray) -> tuple[ndarray, ndarray]:
     return output, cache
 
 
-def relu(input_data: ndarray) -> tuple[ndarray, ndarray]:
+def relu(input_data: Array) -> tuple[Array, Array]:
     """
     Apply ReLU activation on input data.
 
@@ -45,7 +45,7 @@ def relu(input_data: ndarray) -> tuple[ndarray, ndarray]:
     return output, cache
 
 
-def softmax(input_data: ndarray) -> tuple[ndarray, ndarray]:
+def softmax(input_data: Array) -> tuple[Array, Array]:
     """
     Apply softmax activation to input data, for multiclass classification.
 
@@ -64,7 +64,7 @@ def softmax(input_data: ndarray) -> tuple[ndarray, ndarray]:
     return output, cache
 
 
-def relu_backward(gradient: ndarray, cache: ndarray) -> ndarray:
+def relu_backward(gradient: Array, cache: Array) -> Array:
     """
     Implement the backward propagation for a single RELU unit.
 
@@ -84,7 +84,7 @@ def relu_backward(gradient: ndarray, cache: ndarray) -> ndarray:
     return cost_gradient
 
 
-def sigmoid_backward(gradient: ndarray, cache: ndarray) -> ndarray:
+def sigmoid_backward(gradient: Array, cache: Array) -> Array:
     """
     Implement the backward propagation for a single SIGMOID unit.
 
@@ -102,7 +102,7 @@ def sigmoid_backward(gradient: ndarray, cache: ndarray) -> ndarray:
     return cost_gradient
 
 
-def softmax_backward(gradient: ndarray, cache: ndarray) -> ndarray:
+def softmax_backward(gradient: Array, cache: Array) -> Array:
     """
     Implement the backward propagation for a softmax layer.
 
