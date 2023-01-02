@@ -55,7 +55,9 @@ print("X_test's shape: " + str(X_test.shape) + "\n")
 layers_dims = [12288, 9, 5, 3, 1]  # 5-layer model
 
 nn = NeuralNetwork(layers_dims, learning_rate=0.005, num_iterations=1000, activation=str(Activation.SIGMOID.value),
-                   optimizer=str(Optimizer.SGDM.value))
+                   optimizer=str(Optimizer.SGDM.value),
+                   parameters_filename='cat_parameters.npy',
+                   dims_filename='cat_layers_dims.npy')
 
 nn.fit(X_train, y_train)
 
@@ -69,4 +71,4 @@ ax.set(xlabel='Iterations (x10)', ylabel='Cost', title='Cost over iterations')
 plt.show()
 
 # Test model:
-pred_test = nn.test(X_test, y_test)
+nn.test(X_test, y_test)

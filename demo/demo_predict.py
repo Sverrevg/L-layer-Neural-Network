@@ -7,7 +7,7 @@ from neural_network.neural_network import NeuralNetwork
 
 nn = NeuralNetwork([0])
 
-nn.load_model()
+nn.load_model(parameters_filename='cat_parameters.npy', dims_filename='cat_layers_dims.npy')
 
 # Prepare image for prediction:
 cat = 'data/cat.jpg'

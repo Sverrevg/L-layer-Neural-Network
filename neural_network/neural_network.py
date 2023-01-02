@@ -28,7 +28,8 @@ class NeuralNetwork:
                  print_cost: bool = True,
                  beta: float = 0.5,
                  save_dir: str = './../save_files/',
-                 filename: str = 'parameters.npy'):
+                 parameters_filename: str = 'parameters.npy',
+                 dims_filename: str = 'layers_dims.npy'):
         """
         layers_dims -- list containing the input size and each layer size, of length (number of layers + 1).
         learning_rate -- learning rate of the gradient descent update rule
@@ -47,7 +48,8 @@ class NeuralNetwork:
         self.print_cost: bool = print_cost
         self.beta: float = beta
         self.save_dir: str = save_dir  # Used to load and save the model parameters.
-        self.filename: str = filename
+        self.parameters_filename: str = parameters_filename
+        self.dims_filename: str = dims_filename
 
         # Network stores:
         self.parameters: dict[str, ndarray] = {}  # Saves trained parameters within the model.
@@ -150,23 +152,23 @@ class NeuralNetwork:
         """
         Save the trained weights and biases to files that can be loaded later.
         """
-        print("Saving parameters to", "'" + self.save_dir + self.filename + "'...")
+        print("Saving parameters to", "'" + self.save_dir + self.parameters_filename + "'...")
 
         # Check if save_dir exists, if not, make it:
         Path(self.save_dir).mkdir(exist_ok=True)
 
         # Numpy.save() saves a numpy array to a file.
-        np.save(self.save_dir + self.filename, self.parameters)
-        np.save(self.save_dir + "layers_dims.npy", self.layers_dims)
+        np.save(self.save_dir + self.parameters_filename, self.parameters)
+        np.save(self.save_dir + self.dims_filename, self.layers_dims)
 
-    def load_model(self) -> None:
+    def load_model(self, parameters_filename: str, dims_filename: str) -> None:
         """
         Load trained weights and biases into existing model.
         """
         try:
             # Load saved file into parameters array. Use .item() to retrieve all dictionaries:
-            self.parameters = np.load(self.save_dir + self.filename, allow_pickle=True).item()
-            self.layers_dims = np.load(self.save_dir + "layers_dims.npy")
+            self.parameters = np.load(self.save_dir + parameters_filename, allow_pickle=True).item()
+            self.layers_dims = np.load(self.save_dir + dims_filename)
             self.output_shape = self.layers_dims[-1]
         except ValueError as exc:
             raise ValueError("Parameters cannot be empty.") from exc
