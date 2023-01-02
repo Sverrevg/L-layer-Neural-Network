@@ -52,7 +52,7 @@ class NeuralNetwork:
         # Network stores:
         self.parameters: dict[str, ndarray] = {}  # Saves trained parameters within the model.
         self.momentum: dict[str, ndarray] = {}  # Saves momenta within the model.
-        self.costs: list[int] = []  # Saves cost within the model after training.
+        self.costs: list[float] = []  # Saves cost within the model after training.
 
         if len(layers_dims) > 0:
             self.output_shape = layers_dims[-1]
@@ -70,8 +70,7 @@ class NeuralNetwork:
         """
         start_time = time.time()
 
-        np.random.seed(1)
-        costs = []  # keep track of cost
+        costs: list[float] = []  # keep track of cost
 
         # Parameters initialization.
         parameters = initialize_parameters_deep(self.layers_dims)
@@ -98,7 +97,7 @@ class NeuralNetwork:
             if self.print_cost and i % 100 == 0 or i == self.num_iterations - 1:
                 print(f"Cost after iteration {i}: {cost_rounded}")
             if i % 100 == 0 or i == self.num_iterations:
-                costs.append(np.max(cost))
+                costs.append(float(np.max(cost)))
 
             # Print cost between 100 iterations:
             print(f'Cost iteration {i}: {cost_rounded}', end='\r')
@@ -143,7 +142,7 @@ class NeuralNetwork:
 
             print(f'Test accuracy: {accuracy}')
 
-    def predict(self, input_data):
+    def predict(self, input_data: ndarray) -> ndarray:
         probability_vector, _ = l_model_forward(input_data, self.parameters, self.activation, self.output_shape)
         return probability_vector
 
