@@ -88,8 +88,7 @@ class NeuralNetwork:
 
             # Update parameters.
             self.parameters, self.momentum = update_parameters(parameters, grads, self.momentum, self.learning_rate,
-                                                               self.optimizer, i,
-                                                               self.beta)
+                                                               self.optimizer, i, self.beta)
 
             cost_rounded = np.squeeze(np.round(cost, 3))
 
@@ -146,7 +145,10 @@ class NeuralNetwork:
         probability_vector, _ = l_model_forward(input_data, self.parameters, self.output_activation, self.output_shape)
         return probability_vector
 
-    def save_model(self):
+    def save_model(self) -> None:
+        """
+        Save the trained weights and biases to files that can be loaded later.
+        """
         print("Saving parameters to", "'" + self.save_dir + self.filename + "'...")
 
         # Check if save_dir exists, if not, make it:
@@ -156,7 +158,10 @@ class NeuralNetwork:
         np.save(self.save_dir + self.filename, self.parameters)
         np.save(self.save_dir + "layers_dims.npy", self.layers_dims)
 
-    def load_model(self):
+    def load_model(self) -> None:
+        """
+        Load trained weights and biases into existing model.
+        """
         try:
             # Load saved file into parameters array. Use .item() to retrieve all dictionaries:
             self.parameters = np.load(self.save_dir + self.filename, allow_pickle=True).item()

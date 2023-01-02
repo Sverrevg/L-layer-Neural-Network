@@ -4,6 +4,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder
 
+from neural_network.network_operations.activation import Activation
+from neural_network.network_operations.loss import Loss
+from neural_network.network_operations.optimizer import Optimizer
+from neural_network.neural_network import NeuralNetwork
+
 """Import data"""
 iris = 'http://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data'
 df = pd.read_csv(iris, sep=',')
