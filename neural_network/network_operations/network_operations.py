@@ -1,17 +1,15 @@
-from typing import Any
-
 import numpy as np
 
 from neural_network import math_operations
 from neural_network.helpers.activation_cache import ActivationCache
-from neural_network.helpers.array import Array
 from neural_network.helpers.forward_cache import ForwardCache
+from neural_network.math_operations import ndarray
 from neural_network.network_operations.activation import Activation
 from neural_network.network_operations.loss import Loss
 from neural_network.network_operations.optimizer import Optimizer
 
 
-def initialize_parameters_deep(layer_dims: list[int]) -> dict[str, Array[Any, float]]:
+def initialize_parameters_deep(layer_dims: list[int]) -> dict[str, ndarray]:
     """
     Arguments:
     layer_dims -- python array (list) containing the dimensions of each layer in our network.
@@ -36,8 +34,8 @@ def initialize_parameters_deep(layer_dims: list[int]) -> dict[str, Array[Any, fl
     return parameters
 
 
-def linear_forward(activations: Array[Any, float], weights: Array[Any, float], bias: Array[Any, float]) -> \
-        tuple[Array[Any, float], ForwardCache]:
+def linear_forward(activations: ndarray, weights: ndarray, bias: ndarray) -> \
+        tuple[ndarray, ForwardCache]:
     """
     Implement the linear part of a layer's forward propagation.
 
@@ -56,8 +54,8 @@ def linear_forward(activations: Array[Any, float], weights: Array[Any, float], b
     return activation_input, cache
 
 
-def linear_activation_forward(activations_prev: Array[Any, float], weights: Array[Any, float], bias: Array[Any, float],
-                              activation: str):
+def linear_activation_forward(activations_prev: ndarray, weights: ndarray, bias: ndarray,
+                              activation: str) -> tuple[ndarray, ActivationCache]:
     """
     Implement the forward propagation for the LINEAR->ACTIVATION layer
 
@@ -72,10 +70,6 @@ def linear_activation_forward(activations_prev: Array[Any, float], weights: Arra
     cache -- a python dictionary containing "linear_cache" and "activation_cache"; stored for computing the backward
     pass efficiently.
     """
-    outputs = np.array(0)
-    linear_cache = np.array(0)
-    activation_cache = np.array(0)
-
     if activation == Activation.RELU.value:
         # Inputs: "A_prev, W, b". Outputs: "A, activation_cache".
         inputs, linear_cache = linear_forward(activations_prev, weights, bias)
@@ -90,19 +84,19 @@ def linear_activation_forward(activations_prev: Array[Any, float], weights: Arra
         inputs, linear_cache = linear_forward(activations_prev, weights, bias)
         outputs, activation_cache = math_operations.softmax(inputs)
 
-    assert outputs.shape == (weights.shape[0], activations_prev.shape[1])
-    cache = ActivationCache(linear_cache, activation_cache)
-
-    return outputs, cache
+    return outputs, ActivationCache(linear_cache, activation_cache)
 
 
-def l_model_forward(input_data, parameters, activation, output_shape):
+def l_model_forward(input_data: ndarray, parameters: dict[str, ndarray], activation: str, output_shape: int) -> \
+        tuple[ndarray, list[ActivationCache]]:
     """
     Implement forward propagation for the [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID computation.
 
     Arguments:
-    X -- data, numpy array of shape (input size, number of examples).
+    input_data -- data, numpy array of shape (input size, number of examples).
     parameters -- output of initialize_parameters_deep().
+    activation -- type of activation function to use.
+    output_shape -- shape of the output data.
 
     Returns:
     last_activation_value -- last post-activation value.
@@ -130,7 +124,7 @@ def l_model_forward(input_data, parameters, activation, output_shape):
     return last_activation_value, caches
 
 
-def compute_cost(probability_vector, label, loss):
+def compute_cost(probability_vector: ndarray, label: ndarray, loss: str) -> ndarray:
     """
     Implement the cost function defined by equation (7).
 
@@ -143,7 +137,7 @@ def compute_cost(probability_vector, label, loss):
     """
     # Amount of images
     input_shape = label.shape[1]
-    cost = 0
+    cost = 0.
 
     # Cross entropy for binary classification. Different formula:
     if loss == Loss.BINARY.value:
@@ -156,12 +150,10 @@ def compute_cost(probability_vector, label, loss):
         cost = - np.sum(np.multiply(label, np.log(probability_vector)))
         cost = cost / input_shape
 
-    cost = np.squeeze(cost)  # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
-
-    return cost
+    return np.squeeze(cost)  # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
 
 
-def linear_backward(cost_gradient, cache):
+def linear_backward(cost_gradient: ndarray, cache: ForwardCache) -> tuple[ndarray, ndarray, ndarray]:
     """
     Implement the linear portion of backward propagation for a single layer (layer l).
 
@@ -188,7 +180,8 @@ def linear_backward(cost_gradient, cache):
     return activation_gradient, weight_gradient, bias_gradient
 
 
-def linear_activation_backward(post_activation_gradient, cache, activation):
+def linear_activation_backward(post_activation_gradient: ndarray, cache: ActivationCache, activation: str) -> \
+        tuple[ndarray, ndarray, ndarray]:
     """
     Implement the backward propagation for the LINEAR->ACTIVATION layer.
 
@@ -203,7 +196,7 @@ def linear_activation_backward(post_activation_gradient, cache, activation):
     weight_gradient -- Gradient of the cost with respect to W (current layer l), same shape as W.
     bias_gradient -- Gradient of the cost with respect to b (current layer l), same shape as b.
     """
-    cost_gradient = 0
+    cost_gradient = np.array(0)
 
     if activation == Activation.RELU.value:
         cost_gradient = math_operations.relu_backward(post_activation_gradient, cache.activation_cache)
@@ -219,7 +212,8 @@ def linear_activation_backward(post_activation_gradient, cache, activation):
     return activation_gradient, weight_gradient, bias_gradient
 
 
-def l_model_backward(probability_vector, label, caches, loss, activation):
+def l_model_backward(probability_vector: ndarray, label: ndarray, caches: list[ActivationCache], loss: str,
+                     activation: str) -> dict[str, ndarray]:
     """
     Implement the backward propagation for the [LINEAR->RELU] * (L-1) -> LINEAR -> SIGMOID group.
 
@@ -239,7 +233,7 @@ def l_model_backward(probability_vector, label, caches, loss, activation):
     grads = {}
     layer_count = len(caches)  # The total number of layers.
     # probability_vector.shape[1]
-    if loss == Loss.BINARY:
+    if loss == Loss.BINARY.value:
         label = label.reshape(probability_vector.shape)  # After this line, Y is the same shape as AL.
 
     # Initializing the backpropagation:
@@ -263,7 +257,9 @@ def l_model_backward(probability_vector, label, caches, loss, activation):
     return grads
 
 
-def update_parameters(parameters, grads, momentum, learning_rate, optimizer, iteration, beta):
+def update_parameters(parameters: dict[str, ndarray], grads: dict[str, ndarray], momentum: dict[str, ndarray],
+                      learning_rate: float, optimizer: str, iteration: int, beta: float) -> \
+        tuple[dict[str, ndarray], dict[str, ndarray]]:
     """
     Update parameters using gradient descent
 
@@ -280,7 +276,7 @@ def update_parameters(parameters, grads, momentum, learning_rate, optimizer, ite
 
     layer_count = len(parameters) // 2
 
-    if optimizer == Optimizer.SGD:
+    if optimizer == Optimizer.SGD.value:
         # Update rule for each parameter. Use a for loop.
         for layer in range(layer_count):
             parameters[f'Weights{layer + 1}'] = parameters[f'Weights{layer + 1}'] - learning_rate * grads[
@@ -289,7 +285,7 @@ def update_parameters(parameters, grads, momentum, learning_rate, optimizer, ite
                 f'bias_gradient{layer + 1}']
 
     # Calculate v:
-    if optimizer == Optimizer.SGDM:
+    if optimizer == Optimizer.SGDM.value:
         # At first iteration vw and vb equal gradients for each layer:
         for layer in range(layer_count):
             layer += 1

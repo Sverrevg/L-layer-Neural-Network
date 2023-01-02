@@ -1,8 +1,10 @@
 import time
+from ctypes import Union
 from pathlib import Path
 
 import numpy as np
 
+from neural_network.math_operations import ndarray
 from neural_network.network_operations.activation import Activation
 from neural_network.network_operations.loss import Loss
 from neural_network.network_operations.network_operations import (
@@ -17,16 +19,16 @@ from neural_network.network_operations.optimizer import Optimizer
 
 class NeuralNetwork:
     def __init__(self,
-                 layers_dims=None,
-                 learning_rate=0.0075,
-                 num_iterations=3000,
-                 activation=Activation.SIGMOID.value,
-                 loss=Loss.BINARY.value,
-                 optimizer=Optimizer.SGDM,
-                 print_cost=True,
-                 beta=0.5,
-                 save_dir='./../save_files/',
-                 filename='parameters.npy'):
+                 layers_dims: list[int],
+                 learning_rate: float = 0.0075,
+                 num_iterations: int = 3000,
+                 activation: str = Activation.SIGMOID.value,
+                 loss: str = Loss.BINARY.value,
+                 optimizer: str = Optimizer.SGDM.value,
+                 print_cost: bool = True,
+                 beta: float = 0.5,
+                 save_dir: str = './../save_files/',
+                 filename: str = 'parameters.npy'):
         """
         layers_dims -- list containing the input size and each layer size, of length (number of layers + 1).
         learning_rate -- learning rate of the gradient descent update rule
@@ -35,27 +37,27 @@ class NeuralNetwork:
         save_dir -- default save location. Can be overridden.
         filename -- default file name. Can be overridden.
         """
+        # Input parameters:
+        self.layers_dims: list[int] = layers_dims
+        self.learning_rate: float = learning_rate
+        self.num_iterations: int = num_iterations
+        self.activation: str = activation
+        self.loss: str = loss
+        self.optimizer: str = optimizer
+        self.print_cost: bool = print_cost
+        self.beta: float = beta
+        self.save_dir: str = save_dir  # Used to load and save the model parameters.
+        self.filename: str = filename
 
-        if layers_dims is None:
-            layers_dims = []
-        self.layers_dims = layers_dims
-        self.learning_rate = learning_rate
-        self.num_iterations = num_iterations
-        self.print_cost = print_cost
-        self.parameters = []  # Saves trained parameters within the model.
-        self.momentum = {}  # Saves momenta within the model.
-        self.costs = []  # Saves cost within the model after training.
-        self.save_dir = save_dir  # Used to load and save the model parameters.
-        self.filename = filename
-        self.output_activation = activation
-        self.optimizer = optimizer
-        self.loss = loss
-        self.beta = beta
+        # Network stores:
+        self.parameters: dict[str, ndarray] = {}  # Saves trained parameters within the model.
+        self.momentum: dict[str, ndarray] = {}  # Saves momenta within the model.
+        self.costs: list[int] = []  # Saves cost within the model after training.
 
         if len(layers_dims) > 0:
             self.output_shape = layers_dims[-1]
 
-    def fit(self, input_data, labels):
+    def fit(self, input_data: ndarray, labels: ndarray) -> None:
         """
         Implements an L-layer neural network: [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID.
 
@@ -77,14 +79,14 @@ class NeuralNetwork:
         # Loop (gradient descent)
         for i in range(0, self.num_iterations):
             # Forward propagation: [LINEAR -> RELU]*(L-1) -> LINEAR -> SIGMOID.
-            probability_vector, caches = l_model_forward(input_data, parameters, self.output_activation,
+            probability_vector, caches = l_model_forward(input_data, parameters, self.activation,
                                                          self.output_shape)
 
             # Compute cost.
             cost = compute_cost(probability_vector, labels, self.loss)
 
             # Backward propagation.
-            grads = l_model_backward(probability_vector, labels, caches, self.loss, self.output_activation)
+            grads = l_model_backward(probability_vector, labels, caches, self.loss, self.activation)
 
             # Update parameters.
             self.parameters, self.momentum = update_parameters(parameters, grads, self.momentum, self.learning_rate,
@@ -107,11 +109,11 @@ class NeuralNetwork:
         # Save costs to model:
         self.costs = costs
 
-    def test(self, input_data, labels):
+    def test(self, input_data: ndarray, labels: ndarray) -> None:
         input_shape = input_data.shape[1]
         predictions = np.zeros((1, input_shape))
 
-        outputs, _ = l_model_forward(input_data, self.parameters, self.output_activation, self.output_shape)
+        outputs, _ = l_model_forward(input_data, self.parameters, self.activation, self.output_shape)
 
         if self.loss == Loss.BINARY.value:
             for i in range(input_shape):
@@ -142,7 +144,7 @@ class NeuralNetwork:
             print(f'Test accuracy: {accuracy}')
 
     def predict(self, input_data):
-        probability_vector, _ = l_model_forward(input_data, self.parameters, self.output_activation, self.output_shape)
+        probability_vector, _ = l_model_forward(input_data, self.parameters, self.activation, self.output_shape)
         return probability_vector
 
     def save_model(self) -> None:

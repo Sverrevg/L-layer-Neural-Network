@@ -5,7 +5,7 @@ import time
 
 from neural_network.neural_network import NeuralNetwork
 
-nn = NeuralNetwork()
+nn = NeuralNetwork([0])
 
 nn.load_model()
 
