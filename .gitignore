@@ -155,5 +155,5 @@ crashlytics-build.properties
 fabric.properties
 
 # Training data
-/poc/data
+/poc
 /save_files
