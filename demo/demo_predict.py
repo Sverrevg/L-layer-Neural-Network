@@ -10,8 +10,8 @@ nn = NeuralNetwork()
 nn.load_model()
 
 # Prepare image for prediction:
-cat = 'data/cats/cat.jpg'
-beer = 'data/cats/beer.jpg'
+cat = 'data/cat.jpg'
+beer = 'data/beer.jpg'
 num_px = 64
 
 image_1 = np.array(Image.open(cat).resize((num_px, num_px)))
