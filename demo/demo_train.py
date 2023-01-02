@@ -26,12 +26,6 @@ def load_data():
 
 X_train_origin, y_train, X_test_origin, y_test, classes = load_data()
 
-# Example of a picture
-index = 88
-plt.imshow(X_train_origin[index])
-plt.show()
-print("y = " + str(y_train[0, index]) + ". It's a " + classes[y_train[0, index]].decode("utf-8") + " picture.\n")
-
 # Explore your dataset:
 image_size = X_train_origin.shape[1]
 m_train = X_train_origin.shape[0]

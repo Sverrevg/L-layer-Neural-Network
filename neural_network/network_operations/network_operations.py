@@ -1,12 +1,17 @@
+from typing import Any
+
 import numpy as np
 
 from neural_network import math_operations
+from neural_network.helpers.activation_cache import ActivationCache
+from neural_network.helpers.array import Array
+from neural_network.helpers.forward_cache import ForwardCache
 from neural_network.network_operations.activation import Activation
 from neural_network.network_operations.loss import Loss
 from neural_network.network_operations.optimizer import Optimizer
 
 
-def initialize_parameters_deep(layer_dims):
+def initialize_parameters_deep(layer_dims: list[int]) -> dict[str, Array[Any, float]]:
     """
     Arguments:
     layer_dims -- python array (list) containing the dimensions of each layer in our network.
@@ -31,7 +36,8 @@ def initialize_parameters_deep(layer_dims):
     return parameters
 
 
-def linear_forward(activations, weights, bias):
+def linear_forward(activations: Array[Any, float], weights: Array[Any, float], bias: Array[Any, float]) -> \
+        tuple[Array[Any, float], ForwardCache]:
     """
     Implement the linear part of a layer's forward propagation.
 
@@ -45,12 +51,13 @@ def linear_forward(activations, weights, bias):
     cache -- a python dictionary containing "A", "W" and "b" ; stored for computing the backward pass efficiently.
     """
     activation_input = weights.dot(activations) + bias
-    cache = (activations, weights, bias)
+    cache = ForwardCache(activations, weights, bias)
 
     return activation_input, cache
 
 
-def linear_activation_forward(activations_prev, weights, bias, activation):
+def linear_activation_forward(activations_prev: Array[Any, float], weights: Array[Any, float], bias: Array[Any, float],
+                              activation: str):
     """
     Implement the forward propagation for the LINEAR->ACTIVATION layer
 
@@ -84,7 +91,7 @@ def linear_activation_forward(activations_prev, weights, bias, activation):
         outputs, activation_cache = math_operations.softmax(inputs)
 
     assert outputs.shape == (weights.shape[0], activations_prev.shape[1])
-    cache = (linear_cache, activation_cache)
+    cache = ActivationCache(linear_cache, activation_cache)
 
     return outputs, cache
 
@@ -168,16 +175,15 @@ def linear_backward(cost_gradient, cache):
     activation_gradient -- Gradient of the cost with respect to the activation (of the previous layer l-1),
     same shape as activations_prev.
     """
-    activations_prev, weights, bias = cache
-    input_shape = activations_prev.shape[1]
+    input_shape = cache.activations.shape[1]
 
-    weight_gradient = 1. / input_shape * np.dot(cost_gradient, activations_prev.T)
+    weight_gradient = 1. / input_shape * np.dot(cost_gradient, cache.activations.T)
     bias_gradient = 1. / input_shape * np.sum(cost_gradient, axis=1, keepdims=True)
-    activation_gradient = np.dot(weights.T, cost_gradient)
+    activation_gradient = np.dot(cache.weights.T, cost_gradient)
 
-    assert activation_gradient.shape == activations_prev.shape
-    assert weight_gradient.shape == weights.shape
-    assert bias_gradient.shape == bias.shape
+    assert activation_gradient.shape == cache.activations.shape
+    assert weight_gradient.shape == cache.weights.shape
+    assert bias_gradient.shape == cache.bias.shape
 
     return activation_gradient, weight_gradient, bias_gradient
 
@@ -197,20 +203,18 @@ def linear_activation_backward(post_activation_gradient, cache, activation):
     weight_gradient -- Gradient of the cost with respect to W (current layer l), same shape as W.
     bias_gradient -- Gradient of the cost with respect to b (current layer l), same shape as b.
     """
-    # Unpack tuple:
-    linear_cache, activation_cache = cache
     cost_gradient = 0
 
     if activation == Activation.RELU.value:
-        cost_gradient = math_operations.relu_backward(post_activation_gradient, activation_cache)
+        cost_gradient = math_operations.relu_backward(post_activation_gradient, cache.activation_cache)
 
     elif activation == Activation.SIGMOID.value:
-        cost_gradient = math_operations.sigmoid_backward(post_activation_gradient, activation_cache)
+        cost_gradient = math_operations.sigmoid_backward(post_activation_gradient, cache.activation_cache)
 
     elif activation == Activation.SOFTMAX.value:
-        cost_gradient = math_operations.softmax_backward(post_activation_gradient, activation_cache)
+        cost_gradient = math_operations.softmax_backward(post_activation_gradient, cache.activation_cache)
 
-    activation_gradient, weight_gradient, bias_gradient = linear_backward(cost_gradient, linear_cache)
+    activation_gradient, weight_gradient, bias_gradient = linear_backward(cost_gradient, cache.linear_cache)
 
     return activation_gradient, weight_gradient, bias_gradient
 

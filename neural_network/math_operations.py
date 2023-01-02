@@ -1,11 +1,16 @@
+from typing import Any
+
 import numpy as np
 
 """
-Source: Coursera DeepLearning course.
+Functions based on: Coursera DeepLearning course.
 """
 
+# Create custom type hint using numpy
+ndarray = np.ndarray[Any, np.dtype[np.float64]]
 
-def sigmoid(input_data: np.array) -> tuple[[], []]:
+
+def sigmoid(input_data: ndarray) -> tuple[ndarray, ndarray]:
     """
     Runs the sigmoid activation on an input (array).
 
@@ -22,7 +27,7 @@ def sigmoid(input_data: np.array) -> tuple[[], []]:
     return output, cache
 
 
-def relu(input_data: np.array) -> tuple[[], []]:
+def relu(input_data: ndarray) -> tuple[ndarray, ndarray]:
     """
     Apply ReLU activation on input data.
 
@@ -40,7 +45,7 @@ def relu(input_data: np.array) -> tuple[[], []]:
     return output, cache
 
 
-def softmax(input_data: np.array) -> tuple[[], []]:
+def softmax(input_data: ndarray) -> tuple[ndarray, ndarray]:
     """
     Apply softmax activation to input data, for multiclass classification.
 
@@ -59,7 +64,7 @@ def softmax(input_data: np.array) -> tuple[[], []]:
     return output, cache
 
 
-def relu_backward(gradient: np.array, cache: np.array) -> np.array:
+def relu_backward(gradient: ndarray, cache: ndarray) -> ndarray:
     """
     Implement the backward propagation for a single RELU unit.
 
@@ -79,7 +84,7 @@ def relu_backward(gradient: np.array, cache: np.array) -> np.array:
     return cost_gradient
 
 
-def sigmoid_backward(gradient: np.array, cache: np.array) -> np.array:
+def sigmoid_backward(gradient: ndarray, cache: ndarray) -> ndarray:
     """
     Implement the backward propagation for a single SIGMOID unit.
 
@@ -91,13 +96,13 @@ def sigmoid_backward(gradient: np.array, cache: np.array) -> np.array:
     cost_gradient -- Gradient of the cost with respect to Z.
     """
     sigmoid_val = 1 / (1 + np.exp(-cache))
-    cost_gradient = gradient * sigmoid_val * (1 - sigmoid_val)
+    cost_gradient = np.array(gradient * sigmoid_val * (1 - sigmoid_val))
 
     assert cost_gradient.shape == cache.shape
     return cost_gradient
 
 
-def softmax_backward(gradient: np.array, cache: np.array) -> np.array:
+def softmax_backward(gradient: ndarray, cache: ndarray) -> ndarray:
     """
     Implement the backward propagation for a softmax layer.
 
@@ -111,7 +116,7 @@ def softmax_backward(gradient: np.array, cache: np.array) -> np.array:
     Source: https://e2eml.school/softmax.html
     """
     sigmoid_val = np.exp(cache) / (np.sum(np.exp(cache)))
-    cost_gradient = gradient * sigmoid_val * (1 - sigmoid_val)
+    cost_gradient = np.array(gradient * sigmoid_val * (1 - sigmoid_val))
 
     assert cost_gradient.shape == cache.shape
     return cost_gradient
