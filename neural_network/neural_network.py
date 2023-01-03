@@ -3,10 +3,10 @@ from pathlib import Path
 
 import numpy as np
 
-from neural_network.math_operations import Array
+from neural_network.math_functions import Array
 from neural_network.network_operations.activation import Activation
 from neural_network.network_operations.loss import Loss
-from neural_network.network_operations.network_operations import (
+from neural_network.network_operations.network_functions import (
     compute_cost,
     initialize_parameters_deep,
     l_model_backward,
@@ -157,7 +157,7 @@ class NeuralNetwork:
         Path(self.save_dir).mkdir(exist_ok=True)
 
         # Numpy.save() saves a numpy array to a file.
-        np.save(self.save_dir + self.parameters_filename, self.parameters)
+        np.save(self.save_dir + self.parameters_filename, self.parameters)  # type: ignore
         np.save(self.save_dir + self.dims_filename, self.layers_dims)
 
     def load_model(self, parameters_filename: str, dims_filename: str) -> None:

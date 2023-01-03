@@ -40,6 +40,9 @@ if 'complexity' in COMMAND_LINE_TARGETS:
 if 'test' in COMMAND_LINE_TARGETS:
     _exec('python -m unittest discover tests.unit')
 
+if 'doctest' in COMMAND_LINE_TARGETS:
+    _exec('python -m doctest README.md')
+
 if 'coverage' in COMMAND_LINE_TARGETS:
     _exec('coverage run -m unittest discover tests.unit')
     _exec('coverage report -m --fail-under=100')

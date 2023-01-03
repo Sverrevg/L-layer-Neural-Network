@@ -1,9 +1,9 @@
 import numpy as np
 
-from neural_network import math_operations
+from neural_network import math_functions
 from neural_network.helpers.activation_cache import ActivationCache
 from neural_network.helpers.forward_cache import ForwardCache
-from neural_network.math_operations import Array
+from neural_network.math_functions import Array
 from neural_network.network_operations.activation import Activation
 from neural_network.network_operations.loss import Loss
 from neural_network.network_operations.optimizer import Optimizer
@@ -73,16 +73,16 @@ def linear_activation_forward(activations_prev: Array, weights: Array, bias: Arr
     if activation == Activation.RELU.value:
         # Inputs: "A_prev, W, b". Outputs: "A, activation_cache".
         inputs, linear_cache = linear_forward(activations_prev, weights, bias)
-        outputs, activation_cache = math_operations.relu(inputs)
+        outputs, activation_cache = math_functions.relu(inputs)
 
     elif activation == Activation.SIGMOID.value:
         # Inputs: "A_prev, W, b". Outputs: "A, activation_cache".
         inputs, linear_cache = linear_forward(activations_prev, weights, bias)
-        outputs, activation_cache = math_operations.sigmoid(inputs)
+        outputs, activation_cache = math_functions.sigmoid(inputs)
 
     elif activation == Activation.SOFTMAX.value:
         inputs, linear_cache = linear_forward(activations_prev, weights, bias)
-        outputs, activation_cache = math_operations.softmax(inputs)
+        outputs, activation_cache = math_functions.softmax(inputs)
 
     return outputs, ActivationCache(linear_cache, activation_cache)
 
@@ -199,13 +199,13 @@ def linear_activation_backward(post_activation_gradient: Array, cache: Activatio
     cost_gradient = np.array(0)
 
     if activation == Activation.RELU.value:
-        cost_gradient = math_operations.relu_backward(post_activation_gradient, cache.activation_cache)
+        cost_gradient = math_functions.relu_backward(post_activation_gradient, cache.activation_cache)
 
     elif activation == Activation.SIGMOID.value:
-        cost_gradient = math_operations.sigmoid_backward(post_activation_gradient, cache.activation_cache)
+        cost_gradient = math_functions.sigmoid_backward(post_activation_gradient, cache.activation_cache)
 
     elif activation == Activation.SOFTMAX.value:
-        cost_gradient = math_operations.softmax_backward(post_activation_gradient, cache.activation_cache)
+        cost_gradient = math_functions.softmax_backward(post_activation_gradient, cache.activation_cache)
 
     activation_gradient, weight_gradient, bias_gradient = linear_backward(cost_gradient, cache.linear_cache)
 
@@ -292,16 +292,19 @@ def update_parameters(parameters: dict[str, Array], grads: dict[str, Array], mom
 
             if iteration == 0:
                 # Should only save one instance:
-                momentum[f'vw{layer}'] = grads[f'weight_gradient{layer}']
-                momentum[f'vb{layer}'] = grads[f'bias_gradient{layer}']
+                momentum[f'vector_weight{layer}'] = grads[f'weight_gradient{layer}']
+                momentum[f'vector_bias{layer}'] = grads[f'bias_gradient{layer}']
 
             elif iteration > 0:
                 # Calculate new momentum with values from previous iteration:
-                momentum[f'vw{layer}'] = beta * momentum[f'vw{layer}'] + grads[f'weight_gradient{layer}']
-                momentum[f'vb{layer}'] = beta * momentum[f'vb{layer}'] + grads[f'bias_gradient{layer}']
+                momentum[f'vector_weight{layer}'] = beta * momentum[f'vector_weight{layer}'] + grads[
+                    f'weight_gradient{layer}']
+                momentum[f'vector_bias{layer}'] = beta * momentum[f'vector_bias{layer}'] + grads[
+                    f'bias_gradient{layer}']
 
             # Update each parameter:
-            parameters[f'Weights{layer}'] = parameters[f'Weights{layer}'] - learning_rate * momentum[f'vw{layer}']
-            parameters[f'bias{layer}'] = parameters[f'bias{layer}'] - learning_rate * momentum[f'vb{layer}']
+            parameters[f'Weights{layer}'] = parameters[f'Weights{layer}'] - learning_rate * momentum[
+                f'vector_weight{layer}']
+            parameters[f'bias{layer}'] = parameters[f'bias{layer}'] - learning_rate * momentum[f'vector_bias{layer}']
 
     return parameters, momentum
