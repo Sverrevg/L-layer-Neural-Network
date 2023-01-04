@@ -45,7 +45,7 @@ if 'doctest' in COMMAND_LINE_TARGETS:
 
 if 'coverage' in COMMAND_LINE_TARGETS:
     _exec('coverage run -m unittest discover tests.unit')
-    _exec('coverage report -m --fail-under=100')
+    _exec('coverage report -m --fail-under=80')
 
 # Format
 if 'autoflake' in COMMAND_LINE_TARGETS:

@@ -104,7 +104,6 @@ def l_model_forward(input_data: Array, parameters: dict[str, Array], activation:
         * every cache of linear_relu_forward() (there are L-1 of them, indexed from 0 to L-2).
         * the cache of linear_sigmoid_forward() (there is one, indexed L-1).
     """
-
     caches = []
     layer_count = len(parameters) // 2
 
@@ -124,30 +123,32 @@ def l_model_forward(input_data: Array, parameters: dict[str, Array], activation:
     return last_activation_value, caches
 
 
-def compute_cost(probability_vector: Array, label: Array, loss: str) -> Array:
+def compute_cost(probability_vector: Array, labels: Array, loss: str) -> Array:
     """
     Implement the cost function defined by equation (7).
 
     Arguments:
     probability_vector -- probability vector corresponding to your label predictions, shape (1, number of examples).
-    label -- true "label" vector (for example: containing 0 if non-cat, 1 if cat), shape (1, number of examples).
+    labels -- true "label" vector (for example: containing 0 if non-cat, 1 if cat), shape (1, number of examples).
 
     Returns:
     cost -- cross-entropy cost.
     """
     # Amount of images
-    input_shape = label.shape[1]
+    input_shape = labels.shape[1]
     cost = 0.
 
     # Cross entropy for binary classification. Different formula:
     if loss == Loss.BINARY.value:
         # Compute loss from aL and y.
         cost = (1. / input_shape) * (
-                -np.dot(label, np.log(probability_vector).T) - np.dot(1 - label, np.log(1 - probability_vector).T))
+                -np.dot(labels, np.log(probability_vector).T) - np.dot(1 - labels, np.log(1 - probability_vector).T))
 
     elif loss == Loss.CATEGORICAL.value:
         # Categorical cross-entropy
-        cost = - np.sum(np.multiply(label, np.log(probability_vector)))
+        log_vector = np.log(probability_vector)
+        multiple = np.multiply(labels, log_vector)
+        cost = - np.sum(multiple)
         cost = cost / input_shape
 
     return np.squeeze(cost)  # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
@@ -212,14 +213,14 @@ def linear_activation_backward(post_activation_gradient: Array, cache: Activatio
     return activation_gradient, weight_gradient, bias_gradient
 
 
-def l_model_backward(probability_vector: Array, label: Array, caches: list[ActivationCache], loss: str,
+def l_model_backward(probability_vector: Array, labels: Array, caches: list[ActivationCache], loss: str,
                      activation: str) -> dict[str, Array]:
     """
     Implement the backward propagation for the [LINEAR->RELU] * (L-1) -> LINEAR -> SIGMOID group.
 
     Arguments:
     probability_vector -- probability vector, output of the forward propagation (L_model_forward()).
-    label -- true "label" vector (containing 0 if non-cat, 1 if cat).
+    labels -- true "label" vector (containing 0 if non-cat, 1 if cat).
     caches -- list of caches containing:
         * every cache of linear_activation_forward() with "relu" (there are (L-1) or them, indexes from 0 to L-2).
         * the cache of linear_activation_forward() with "sigmoid" (there is one, index L-1).
@@ -234,10 +235,10 @@ def l_model_backward(probability_vector: Array, label: Array, caches: list[Activ
     layer_count = len(caches)  # The total number of layers.
     # probability_vector.shape[1]
     if loss == Loss.BINARY.value:
-        label = label.reshape(probability_vector.shape)  # After this line, Y is the same shape as AL.
+        labels = labels.reshape(probability_vector.shape)  # After this line, Y is the same shape as AL.
 
     # Initializing the backpropagation:
-    post_activation_gradient = - (np.divide(label, probability_vector) - np.divide(1 - label, 1 - probability_vector))
+    post_activation_gradient = - (np.divide(labels, probability_vector) - np.divide(1 - labels, 1 - probability_vector))
 
     # Nth layer (SIGMOID/SOFTMAX -> LINEAR) gradients.
     current_cache = caches[layer_count - 1]
