@@ -70,9 +70,7 @@ class NeuralNetwork:
         Costs - used to plot costs over time for model insight.
         """
         start_time = time.time()
-
         costs: list[float] = []  # keep track of cost
-
         # Parameters initialization.
         parameters = initialize_parameters_deep(self.layers_dims)
 
@@ -105,14 +103,12 @@ class NeuralNetwork:
 
         execution_time = (time.time() - start_time)
         print('Execution time in seconds: ' + str(round(execution_time, 2)))
-
         # Save costs to model:
         self.costs = costs
 
     def test(self, input_data: Array, labels: Array) -> None:
         input_shape = input_data.shape[1]
         predictions = np.zeros((1, input_shape))
-
         outputs, _ = l_model_forward(input_data, self.parameters, self.activation, self.output_shape)
 
         if self.loss == Loss.BINARY.value:

@@ -70,6 +70,10 @@ def linear_activation_forward(activations_prev: Array, weights: Array, bias: Arr
     cache -- a python dictionary containing "linear_cache" and "activation_cache"; stored for computing the backward
     pass efficiently.
     """
+    outputs = np.zeros(0)
+    linear_cache = np.zeros(0)
+    activation_cache = np.zeros(0)
+
     if activation == Activation.RELU.value:
         # Inputs: "A_prev, W, b". Outputs: "A, activation_cache".
         inputs, linear_cache = linear_forward(activations_prev, weights, bias)
@@ -197,7 +201,7 @@ def linear_activation_backward(post_activation_gradient: Array, cache: Activatio
     weight_gradient -- Gradient of the cost with respect to W (current layer l), same shape as W.
     bias_gradient -- Gradient of the cost with respect to b (current layer l), same shape as b.
     """
-    cost_gradient = np.array(0)
+    cost_gradient = np.zeros(0)
 
     if activation == Activation.RELU.value:
         cost_gradient = math_functions.relu_backward(post_activation_gradient, cache.activation_cache)
