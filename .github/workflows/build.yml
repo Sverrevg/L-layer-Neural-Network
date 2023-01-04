@@ -1,8 +1,6 @@
 name: SCons
 
-on:
-  branches:
-    - master
+on: [main]
 
 jobs:
   build:
