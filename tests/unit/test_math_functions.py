@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from neural_network.math_functions import sigmoid, relu, softmax, relu_backward, sigmoid_backward, softmax_backward
+from neural_network.network_functions.math_functions import sigmoid, relu, softmax, relu_backward, sigmoid_backward, softmax_backward
 
 
 class MathFunctionsTestSuite(TestCase):

@@ -2,8 +2,8 @@ import numpy as np
 import h5py
 import matplotlib.pyplot as plt
 
-from neural_network.network_operations.activation import Activation
-from neural_network.network_operations.optimizer import Optimizer
+from neural_network.network_functions.activation import Activation
+from neural_network.network_functions.optimizer import Optimizer
 from neural_network.neural_network import NeuralNetwork
 
 

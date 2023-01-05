@@ -4,7 +4,7 @@ import numpy as np
 
 from neural_network.helpers.activation_cache import ActivationCache
 from neural_network.helpers.forward_cache import ForwardCache
-from neural_network.network_operations.network_functions import l_model_backward, initialize_parameters_deep, \
+from neural_network.network_functions.network_functions import l_model_backward, initialize_parameters_deep, \
     l_model_forward, compute_cost, update_parameters
 
 

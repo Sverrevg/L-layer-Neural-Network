@@ -1,12 +1,12 @@
 import numpy as np
 
-from neural_network import math_functions
 from neural_network.helpers.activation_cache import ActivationCache
 from neural_network.helpers.forward_cache import ForwardCache
-from neural_network.math_functions import Array
-from neural_network.network_operations.activation import Activation
-from neural_network.network_operations.loss import Loss
-from neural_network.network_operations.optimizer import Optimizer
+from neural_network.network_functions import math_functions
+from neural_network.network_functions.activation import Activation
+from neural_network.network_functions.loss import Loss
+from neural_network.network_functions.math_functions import Array
+from neural_network.network_functions.optimizer import Optimizer
 
 
 def initialize_parameters_deep(layer_dims: list[int]) -> dict[str, Array]:

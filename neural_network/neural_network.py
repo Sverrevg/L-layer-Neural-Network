@@ -3,17 +3,17 @@ from pathlib import Path
 
 import numpy as np
 
-from neural_network.math_functions import Array
-from neural_network.network_operations.activation import Activation
-from neural_network.network_operations.loss import Loss
-from neural_network.network_operations.network_functions import (
+from neural_network.network_functions.activation import Activation
+from neural_network.network_functions.loss import Loss
+from neural_network.network_functions.math_functions import Array
+from neural_network.network_functions.network_functions import (
     compute_cost,
     initialize_parameters_deep,
     l_model_backward,
     l_model_forward,
     update_parameters,
 )
-from neural_network.network_operations.optimizer import Optimizer
+from neural_network.network_functions.optimizer import Optimizer
 
 
 class NeuralNetwork:
