@@ -155,6 +155,6 @@ crashlytics-build.properties
 fabric.properties
 
 # Training data
-/poc
-/data
-/save_files
+/neural_network/poc
+/neural_network/data
+/neural_network/save_files
