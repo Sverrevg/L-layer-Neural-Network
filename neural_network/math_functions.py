@@ -24,6 +24,7 @@ def sigmoid(input_data: Array) -> tuple[Array, Array]:
     cache = input_data
     output = 1 / (1 + np.exp(-input_data))
 
+    assert output.shape == input_data.shape
     return output, cache
 
 
@@ -61,6 +62,7 @@ def softmax(input_data: Array) -> tuple[Array, Array]:
     exponent = np.exp(shift_z)  # Calculate exponent of z value.
     output = exponent / np.sum(exponent)
 
+    assert output.shape == input_data.shape
     return output, cache
 
 

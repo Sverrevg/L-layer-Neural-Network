@@ -71,8 +71,6 @@ def linear_activation_forward(activations_prev: Array, weights: Array, bias: Arr
     pass efficiently.
     """
     outputs = np.zeros(0)
-    linear_cache = np.zeros(0)
-    activation_cache = np.zeros(0)
 
     if activation == Activation.RELU.value:
         # Inputs: "A_prev, W, b". Outputs: "A, activation_cache".
@@ -262,9 +260,8 @@ def l_model_backward(probability_vector: Array, labels: Array, caches: list[Acti
     return grads
 
 
-def update_parameters(parameters: dict[str, Array], grads: dict[str, Array], momentum: dict[str, Array],
-                      learning_rate: float, optimizer: str, iteration: int, beta: float) -> \
-        tuple[dict[str, Array], dict[str, Array]]:
+def update_parameters(parameters: dict[str, Array], grads: dict[str, Array], learning_rate: float, optimizer: str) -> \
+        dict[str, Array]:
     """
     Update parameters using gradient descent
 
@@ -278,7 +275,6 @@ def update_parameters(parameters: dict[str, Array], grads: dict[str, Array], mom
         * parameters["Weight" + str(l)] = ...
         * parameters["bias" + str(l)] = ...
     """
-
     layer_count = len(parameters) // 2
 
     if optimizer == Optimizer.SGD.value:
@@ -289,27 +285,4 @@ def update_parameters(parameters: dict[str, Array], grads: dict[str, Array], mom
             parameters[f'bias{layer + 1}'] = parameters[f'bias{layer + 1}'] - learning_rate * grads[
                 f'bias_gradient{layer + 1}']
 
-    # Calculate v:
-    if optimizer == Optimizer.SGDM.value:
-        # At first iteration vw and vb equal gradients for each layer:
-        for layer in range(layer_count):
-            layer += 1
-
-            if iteration == 0:
-                # Should only save one instance:
-                momentum[f'vector_weight{layer}'] = grads[f'weight_gradient{layer}']
-                momentum[f'vector_bias{layer}'] = grads[f'bias_gradient{layer}']
-
-            elif iteration > 0:
-                # Calculate new momentum with values from previous iteration:
-                momentum[f'vector_weight{layer}'] = beta * momentum[f'vector_weight{layer}'] + grads[
-                    f'weight_gradient{layer}']
-                momentum[f'vector_bias{layer}'] = beta * momentum[f'vector_bias{layer}'] + grads[
-                    f'bias_gradient{layer}']
-
-            # Update each parameter:
-            parameters[f'Weights{layer}'] = parameters[f'Weights{layer}'] - learning_rate * momentum[
-                f'vector_weight{layer}']
-            parameters[f'bias{layer}'] = parameters[f'bias{layer}'] - learning_rate * momentum[f'vector_bias{layer}']
-
-    return parameters, momentum
+    return parameters

@@ -54,8 +54,8 @@ print("X_test's shape: " + str(X_test.shape) + "\n")
 # Constants
 layers_dims = [12288, 9, 5, 3, 1]  # 5-layer model
 
-nn = NeuralNetwork(layers_dims, learning_rate=0.005, num_iterations=1000, activation=str(Activation.SIGMOID.value),
-                   optimizer=str(Optimizer.SGDM.value),
+nn = NeuralNetwork(layers_dims, learning_rate=0.005, num_iterations=2500, activation=str(Activation.SIGMOID.value),
+                   optimizer=str(Optimizer.SGD.value),
                    parameters_filename='cat_parameters.npy',
                    dims_filename='cat_layers_dims.npy')
 
