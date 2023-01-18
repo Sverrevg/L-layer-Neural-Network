@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from neural_network.helpers.forward_cache import ForwardCache
-from neural_network.math_functions import Array
+from neural_network.network_functions.math_functions import Array
 
 
 @dataclass

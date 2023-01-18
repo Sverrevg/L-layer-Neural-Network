@@ -3,17 +3,17 @@ from pathlib import Path
 
 import numpy as np
 
-from neural_network.math_functions import Array
-from neural_network.network_operations.activation import Activation
-from neural_network.network_operations.loss import Loss
-from neural_network.network_operations.network_functions import (
+from neural_network.network_functions.activation import Activation
+from neural_network.network_functions.loss import Loss
+from neural_network.network_functions.math_functions import Array
+from neural_network.network_functions.network_functions import (
     compute_cost,
     initialize_parameters_deep,
     l_model_backward,
     l_model_forward,
     update_parameters,
 )
-from neural_network.network_operations.optimizer import Optimizer
+from neural_network.network_functions.optimizer import Optimizer
 
 
 class NeuralNetwork:
@@ -23,7 +23,7 @@ class NeuralNetwork:
                  num_iterations: int = 3000,
                  activation: str = Activation.SIGMOID.value,
                  loss: str = Loss.BINARY.value,
-                 optimizer: str = Optimizer.SGDM.value,
+                 optimizer: str = Optimizer.SGD.value,
                  print_cost: bool = True,
                  beta: float = 0.5,
                  save_dir: str = './../save_files/',
@@ -45,14 +45,12 @@ class NeuralNetwork:
         self.loss: str = loss
         self.optimizer: str = optimizer
         self.print_cost: bool = print_cost
-        self.beta: float = beta
         self.save_dir: str = save_dir  # Used to load and save the model parameters.
         self.parameters_filename: str = parameters_filename
         self.dims_filename: str = dims_filename
 
         # Network stores:
         self.parameters: dict[str, Array] = {}  # Saves trained parameters within the model.
-        self.momentum: dict[str, Array] = {}  # Saves momenta within the model.
         self.costs: list[float] = []  # Saves cost within the model after training.
 
         if len(layers_dims) > 0:
@@ -70,9 +68,7 @@ class NeuralNetwork:
         Costs - used to plot costs over time for model insight.
         """
         start_time = time.time()
-
         costs: list[float] = []  # keep track of cost
-
         # Parameters initialization.
         parameters = initialize_parameters_deep(self.layers_dims)
 
@@ -89,8 +85,7 @@ class NeuralNetwork:
             grads = l_model_backward(probability_vector, labels, caches, self.loss, self.activation)
 
             # Update parameters.
-            self.parameters, self.momentum = update_parameters(parameters, grads, self.momentum, self.learning_rate,
-                                                               self.optimizer, i, self.beta)
+            self.parameters = update_parameters(parameters, grads, self.learning_rate, self.optimizer)
 
             cost_rounded = np.squeeze(np.round(cost, 3))
 
@@ -105,15 +100,14 @@ class NeuralNetwork:
 
         execution_time = (time.time() - start_time)
         print('Execution time in seconds: ' + str(round(execution_time, 2)))
-
         # Save costs to model:
         self.costs = costs
 
-    def test(self, input_data: Array, labels: Array) -> None:
+    def test(self, input_data: Array, labels: Array) -> float:
         input_shape = input_data.shape[1]
         predictions = np.zeros((1, input_shape))
-
         outputs, _ = l_model_forward(input_data, self.parameters, self.activation, self.output_shape)
+        accuracy = 0.
 
         if self.loss == Loss.BINARY.value:
             for i in range(input_shape):
@@ -122,7 +116,7 @@ class NeuralNetwork:
                 else:
                     predictions[0, i] = 0
 
-            print("Test accuracy: " + str(np.round(np.sum((predictions == labels) / input_shape))))
+            accuracy = np.round(np.sum((predictions == labels) / input_shape))
         else:
             for i in range(input_shape):
                 # Get the index of correct label:
@@ -141,7 +135,8 @@ class NeuralNetwork:
             total = np.sum(input_shape)
             accuracy = predictions_correct / total
 
-            print(f'Test accuracy: {accuracy}')
+        print(f'Test accuracy: {accuracy}')
+        return accuracy
 
     def predict(self, input_data: Array) -> Array:
         probability_vector, _ = l_model_forward(input_data, self.parameters, self.activation, self.output_shape)

@@ -1,12 +1,12 @@
 import numpy as np
 
-from neural_network import math_functions
 from neural_network.helpers.activation_cache import ActivationCache
 from neural_network.helpers.forward_cache import ForwardCache
-from neural_network.math_functions import Array
-from neural_network.network_operations.activation import Activation
-from neural_network.network_operations.loss import Loss
-from neural_network.network_operations.optimizer import Optimizer
+from neural_network.network_functions import math_functions
+from neural_network.network_functions.activation import Activation
+from neural_network.network_functions.loss import Loss
+from neural_network.network_functions.math_functions import Array
+from neural_network.network_functions.optimizer import Optimizer
 
 
 def initialize_parameters_deep(layer_dims: list[int]) -> dict[str, Array]:
@@ -70,6 +70,8 @@ def linear_activation_forward(activations_prev: Array, weights: Array, bias: Arr
     cache -- a python dictionary containing "linear_cache" and "activation_cache"; stored for computing the backward
     pass efficiently.
     """
+    outputs = np.zeros(0)
+
     if activation == Activation.RELU.value:
         # Inputs: "A_prev, W, b". Outputs: "A, activation_cache".
         inputs, linear_cache = linear_forward(activations_prev, weights, bias)
@@ -104,7 +106,6 @@ def l_model_forward(input_data: Array, parameters: dict[str, Array], activation:
         * every cache of linear_relu_forward() (there are L-1 of them, indexed from 0 to L-2).
         * the cache of linear_sigmoid_forward() (there is one, indexed L-1).
     """
-
     caches = []
     layer_count = len(parameters) // 2
 
@@ -124,30 +125,32 @@ def l_model_forward(input_data: Array, parameters: dict[str, Array], activation:
     return last_activation_value, caches
 
 
-def compute_cost(probability_vector: Array, label: Array, loss: str) -> Array:
+def compute_cost(probability_vector: Array, labels: Array, loss: str) -> Array:
     """
     Implement the cost function defined by equation (7).
 
     Arguments:
     probability_vector -- probability vector corresponding to your label predictions, shape (1, number of examples).
-    label -- true "label" vector (for example: containing 0 if non-cat, 1 if cat), shape (1, number of examples).
+    labels -- true "label" vector (for example: containing 0 if non-cat, 1 if cat), shape (1, number of examples).
 
     Returns:
     cost -- cross-entropy cost.
     """
     # Amount of images
-    input_shape = label.shape[1]
+    input_shape = labels.shape[1]
     cost = 0.
 
     # Cross entropy for binary classification. Different formula:
     if loss == Loss.BINARY.value:
         # Compute loss from aL and y.
         cost = (1. / input_shape) * (
-                -np.dot(label, np.log(probability_vector).T) - np.dot(1 - label, np.log(1 - probability_vector).T))
+                -np.dot(labels, np.log(probability_vector).T) - np.dot(1 - labels, np.log(1 - probability_vector).T))
 
     elif loss == Loss.CATEGORICAL.value:
         # Categorical cross-entropy
-        cost = - np.sum(np.multiply(label, np.log(probability_vector)))
+        log_vector = np.log(probability_vector)
+        multiple = np.multiply(labels, log_vector)
+        cost = - np.sum(multiple)
         cost = cost / input_shape
 
     return np.squeeze(cost)  # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
@@ -196,7 +199,7 @@ def linear_activation_backward(post_activation_gradient: Array, cache: Activatio
     weight_gradient -- Gradient of the cost with respect to W (current layer l), same shape as W.
     bias_gradient -- Gradient of the cost with respect to b (current layer l), same shape as b.
     """
-    cost_gradient = np.array(0)
+    cost_gradient = np.zeros(0)
 
     if activation == Activation.RELU.value:
         cost_gradient = math_functions.relu_backward(post_activation_gradient, cache.activation_cache)
@@ -212,14 +215,14 @@ def linear_activation_backward(post_activation_gradient: Array, cache: Activatio
     return activation_gradient, weight_gradient, bias_gradient
 
 
-def l_model_backward(probability_vector: Array, label: Array, caches: list[ActivationCache], loss: str,
+def l_model_backward(probability_vector: Array, labels: Array, caches: list[ActivationCache], loss: str,
                      activation: str) -> dict[str, Array]:
     """
     Implement the backward propagation for the [LINEAR->RELU] * (L-1) -> LINEAR -> SIGMOID group.
 
     Arguments:
     probability_vector -- probability vector, output of the forward propagation (L_model_forward()).
-    label -- true "label" vector (containing 0 if non-cat, 1 if cat).
+    labels -- true "label" vector (containing 0 if non-cat, 1 if cat).
     caches -- list of caches containing:
         * every cache of linear_activation_forward() with "relu" (there are (L-1) or them, indexes from 0 to L-2).
         * the cache of linear_activation_forward() with "sigmoid" (there is one, index L-1).
@@ -234,10 +237,10 @@ def l_model_backward(probability_vector: Array, label: Array, caches: list[Activ
     layer_count = len(caches)  # The total number of layers.
     # probability_vector.shape[1]
     if loss == Loss.BINARY.value:
-        label = label.reshape(probability_vector.shape)  # After this line, Y is the same shape as AL.
+        labels = labels.reshape(probability_vector.shape)  # After this line, Y is the same shape as AL.
 
     # Initializing the backpropagation:
-    post_activation_gradient = - (np.divide(label, probability_vector) - np.divide(1 - label, 1 - probability_vector))
+    post_activation_gradient = - (np.divide(labels, probability_vector) - np.divide(1 - labels, 1 - probability_vector))
 
     # Nth layer (SIGMOID/SOFTMAX -> LINEAR) gradients.
     current_cache = caches[layer_count - 1]
@@ -257,9 +260,8 @@ def l_model_backward(probability_vector: Array, label: Array, caches: list[Activ
     return grads
 
 
-def update_parameters(parameters: dict[str, Array], grads: dict[str, Array], momentum: dict[str, Array],
-                      learning_rate: float, optimizer: str, iteration: int, beta: float) -> \
-        tuple[dict[str, Array], dict[str, Array]]:
+def update_parameters(parameters: dict[str, Array], grads: dict[str, Array], learning_rate: float, optimizer: str) -> \
+        dict[str, Array]:
     """
     Update parameters using gradient descent
 
@@ -273,7 +275,6 @@ def update_parameters(parameters: dict[str, Array], grads: dict[str, Array], mom
         * parameters["Weight" + str(l)] = ...
         * parameters["bias" + str(l)] = ...
     """
-
     layer_count = len(parameters) // 2
 
     if optimizer == Optimizer.SGD.value:
@@ -284,27 +285,4 @@ def update_parameters(parameters: dict[str, Array], grads: dict[str, Array], mom
             parameters[f'bias{layer + 1}'] = parameters[f'bias{layer + 1}'] - learning_rate * grads[
                 f'bias_gradient{layer + 1}']
 
-    # Calculate v:
-    if optimizer == Optimizer.SGDM.value:
-        # At first iteration vw and vb equal gradients for each layer:
-        for layer in range(layer_count):
-            layer += 1
-
-            if iteration == 0:
-                # Should only save one instance:
-                momentum[f'vector_weight{layer}'] = grads[f'weight_gradient{layer}']
-                momentum[f'vector_bias{layer}'] = grads[f'bias_gradient{layer}']
-
-            elif iteration > 0:
-                # Calculate new momentum with values from previous iteration:
-                momentum[f'vector_weight{layer}'] = beta * momentum[f'vector_weight{layer}'] + grads[
-                    f'weight_gradient{layer}']
-                momentum[f'vector_bias{layer}'] = beta * momentum[f'vector_bias{layer}'] + grads[
-                    f'bias_gradient{layer}']
-
-            # Update each parameter:
-            parameters[f'Weights{layer}'] = parameters[f'Weights{layer}'] - learning_rate * momentum[
-                f'vector_weight{layer}']
-            parameters[f'bias{layer}'] = parameters[f'bias{layer}'] - learning_rate * momentum[f'vector_bias{layer}']
-
-    return parameters, momentum
+    return parameters

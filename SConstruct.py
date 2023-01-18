@@ -24,6 +24,16 @@ if 'format' in COMMAND_LINE_TARGETS:
     COMMAND_LINE_TARGETS += ['autoflake', 'isort']
 
 # Quality
+if 'test' in COMMAND_LINE_TARGETS:
+    _exec('python -m unittest discover tests.unit')
+
+if 'doctest' in COMMAND_LINE_TARGETS:
+    _exec('python -m doctest README.md')
+
+if 'coverage' in COMMAND_LINE_TARGETS:
+    _exec('coverage run --source=neural_network --omit=neural_network/neural_network.py -m unittest discover tests.unit')
+    _exec('coverage report -m --fail-under=100')
+
 if 'pycodestyle' in COMMAND_LINE_TARGETS:
     _exec(f'pycodestyle {_SUBJECT} -v --config=setup.cfg')
 
@@ -36,16 +46,6 @@ if 'mypy' in COMMAND_LINE_TARGETS:
 if 'complexity' in COMMAND_LINE_TARGETS:
     _exec(f'radon cc {_SUBJECT} -nc --total-average')
     _exec(f'xenon {_SUBJECT} --max-absolute B --max-modules A --max-average A --exclude ettg/config.py')
-
-if 'test' in COMMAND_LINE_TARGETS:
-    _exec('python -m unittest discover tests.unit')
-
-if 'doctest' in COMMAND_LINE_TARGETS:
-    _exec('python -m doctest README.md')
-
-if 'coverage' in COMMAND_LINE_TARGETS:
-    _exec('coverage run -m unittest discover tests.unit')
-    _exec('coverage report -m --fail-under=100')
 
 # Format
 if 'autoflake' in COMMAND_LINE_TARGETS:
