@@ -45,7 +45,7 @@ if 'mypy' in COMMAND_LINE_TARGETS:
 
 if 'complexity' in COMMAND_LINE_TARGETS:
     _exec(f'radon cc {_SUBJECT} -nc --total-average')
-    _exec(f'xenon {_SUBJECT} --max-absolute B --max-modules A --max-average A --exclude ettg/config.py')
+    _exec(f'xenon {_SUBJECT} --max-absolute B --max-modules A --max-average A')
 
 # Format
 if 'autoflake' in COMMAND_LINE_TARGETS:

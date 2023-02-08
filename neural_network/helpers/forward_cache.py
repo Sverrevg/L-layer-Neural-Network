@@ -1,13 +1,14 @@
 from dataclasses import dataclass
+from typing import Any
 
-from neural_network.network_functions.math_functions import Array
+import numpy.typing as npt
 
 
 @dataclass
 class ForwardCache:
     """Stores cache from the neural network."""
 
-    def __init__(self, activations: Array, weights: Array, bias: Array) -> None:
+    def __init__(self, activations: npt.NDArray[Any], weights: npt.NDArray[Any], bias: npt.NDArray[Any]) -> None:
         self.activations = activations
         self.weights = weights
         self.bias = bias

@@ -1,16 +1,14 @@
 from typing import Any
 
 import numpy as np
+import numpy.typing as npt
 
 """
 Functions based on: Coursera DeepLearning course.
 """
 
-# Create custom type hint using numpy
-Array = np.ndarray[Any, np.dtype[np.float64]]
 
-
-def sigmoid(input_data: Array) -> tuple[Array, Array]:
+def sigmoid(input_data: npt.NDArray[Any]) -> tuple[npt.NDArray[Any], npt.NDArray[Any]]:
     """
     Runs the sigmoid activation on an input (array).
 
@@ -28,7 +26,7 @@ def sigmoid(input_data: Array) -> tuple[Array, Array]:
     return output, cache
 
 
-def relu(input_data: Array) -> tuple[Array, Array]:
+def relu(input_data: npt.NDArray[Any]) -> tuple[npt.NDArray[Any], npt.NDArray[Any]]:
     """
     Apply ReLU activation on input data.
 
@@ -46,7 +44,7 @@ def relu(input_data: Array) -> tuple[Array, Array]:
     return output, cache
 
 
-def softmax(input_data: Array) -> tuple[Array, Array]:
+def softmax(input_data: npt.NDArray[Any]) -> tuple[npt.NDArray[Any], npt.NDArray[Any]]:
     """
     Apply softmax activation to input data, for multiclass classification.
 
@@ -66,7 +64,7 @@ def softmax(input_data: Array) -> tuple[Array, Array]:
     return output, cache
 
 
-def relu_backward(gradient: Array, cache: Array) -> Array:
+def relu_backward(gradient: npt.NDArray[Any], cache: npt.NDArray[Any]) -> npt.NDArray[Any]:
     """
     Implement the backward propagation for a single RELU unit.
 
@@ -86,7 +84,7 @@ def relu_backward(gradient: Array, cache: Array) -> Array:
     return cost_gradient
 
 
-def sigmoid_backward(gradient: Array, cache: Array) -> Array:
+def sigmoid_backward(gradient: npt.NDArray[Any], cache: npt.NDArray[Any]) -> npt.NDArray[Any]:
     """
     Implement the backward propagation for a single SIGMOID unit.
 
@@ -104,7 +102,7 @@ def sigmoid_backward(gradient: Array, cache: Array) -> Array:
     return cost_gradient
 
 
-def softmax_backward(gradient: Array, cache: Array) -> Array:
+def softmax_backward(gradient: npt.NDArray[Any], cache: npt.NDArray[Any]) -> npt.NDArray[Any]:
     """
     Implement the backward propagation for a softmax layer.
 

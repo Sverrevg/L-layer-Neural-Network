@@ -1,11 +1,12 @@
 import time
 from pathlib import Path
+from typing import Any
 
 import numpy as np
+import numpy.typing as npt
 
 from neural_network.network_functions.activation import Activation
 from neural_network.network_functions.loss import Loss
-from neural_network.network_functions.math_functions import Array
 from neural_network.network_functions.network_functions import (
     compute_cost,
     initialize_parameters_deep,
@@ -25,7 +26,6 @@ class NeuralNetwork:
                  loss: str = Loss.BINARY.value,
                  optimizer: str = Optimizer.SGD.value,
                  print_cost: bool = True,
-                 beta: float = 0.5,
                  save_dir: str = './../save_files/',
                  parameters_filename: str = 'parameters.npy',
                  dims_filename: str = 'layers_dims.npy'):
@@ -50,13 +50,13 @@ class NeuralNetwork:
         self.dims_filename: str = dims_filename
 
         # Network stores:
-        self.parameters: dict[str, Array] = {}  # Saves trained parameters within the model.
+        self.parameters: dict[str, npt.NDArray[Any]] = {}  # Saves trained parameters within the model.
         self.costs: list[float] = []  # Saves cost within the model after training.
 
         if len(layers_dims) > 0:
             self.output_shape = layers_dims[-1]
 
-    def fit(self, input_data: Array, labels: Array) -> None:
+    def fit(self, input_data: npt.NDArray[Any], labels: npt.NDArray[Any]) -> None:
         """
         Implements an L-layer neural network: [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID.
 
@@ -103,7 +103,7 @@ class NeuralNetwork:
         # Save costs to model:
         self.costs = costs
 
-    def test(self, input_data: Array, labels: Array) -> float:
+    def test(self, input_data: npt.NDArray[Any], labels: npt.NDArray[Any]) -> float:
         input_shape = input_data.shape[1]
         predictions = np.zeros((1, input_shape))
         outputs, _ = l_model_forward(input_data, self.parameters, self.activation, self.output_shape)
@@ -138,7 +138,7 @@ class NeuralNetwork:
         print(f'Test accuracy: {accuracy}')
         return accuracy
 
-    def predict(self, input_data: Array) -> Array:
+    def predict(self, input_data: npt.NDArray[Any]) -> npt.NDArray[Any]:
         probability_vector, _ = l_model_forward(input_data, self.parameters, self.activation, self.output_shape)
         return probability_vector
 
